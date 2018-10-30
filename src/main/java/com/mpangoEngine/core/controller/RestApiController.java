@@ -136,6 +136,10 @@ public class RestApiController {
 			HttpServletRequest request, UriComponentsBuilder ucBuilder) {
 
 		System.out.println("userForm >>> " + user.getEmail() + " ::: " + user.getPassword());
+		
+		logger.info("RestApiController ---> registration() >>>> email {}", user.getEmail());
+		logger.info("RestApiController ---> registration() >>>> getPassword {}", user.getPassword());
+		
 		userValidator.validate(user, bindingResult);
 
 		if (bindingResult.hasErrors()) {

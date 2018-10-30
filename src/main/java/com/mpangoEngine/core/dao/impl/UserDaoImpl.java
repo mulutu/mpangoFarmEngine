@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Component;
 
@@ -27,13 +28,16 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
-	
-	@Autowired 
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
 	public UserDaoImpl(DataSource dataSource) {
-	    super();
-	    setDataSource(dataSource);
+		super();
+		setDataSource(dataSource);
 	}
-	
+
 	@Transactional
 	public List getAllUsers() {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
@@ -41,19 +45,19 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 		CriteriaQuery criteria = builder.createQuery(MyUser.class);
 		Root contactRoot = criteria.from(MyUser.class);
 		criteria.select(contactRoot);
-		//session.close();
+		// session.close();
 		return session.createQuery(criteria).getResultList();
 	}
 
 	@Transactional
 	public List<MyUser> getUserDetails(long userid) {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();		
+		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery criteria = builder.createQuery(MyUser.class);
 		Root contactRoot = criteria.from(MyUser.class);
-		//ParameterExpression p = builder.parameter(Integer.class);
+		// ParameterExpression p = builder.parameter(Integer.class);
 		criteria.select(contactRoot).where(builder.equal(contactRoot.get("id"), userid));
-		//session.close();
+		// session.close();
 		return session.createQuery(criteria).getResultList();
 	}
 
@@ -61,13 +65,13 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	@Transactional
 	public MyUser findUserByUserName(String username) {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();		
+		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<MyUser> criteria = builder.createQuery(MyUser.class);
 		Root<MyUser> contactRoot = criteria.from(MyUser.class);
-		//ParameterExpression<Integer> p = builder.parameter(Integer.class);
+		// ParameterExpression<Integer> p = builder.parameter(Integer.class);
 		criteria.select(contactRoot).where(builder.equal(contactRoot.get("username"), username));
 		MyUser user_ = (MyUser) session.createQuery(criteria).getSingleResult();
-		//session.close();
+		// session.close();
 		return user_;
 	}
 
@@ -76,26 +80,26 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	public void saveUser(MyUser user) {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
 		session.beginTransaction();
-		//Transaction tx1 = session.beginTransaction();
+		// Transaction tx1 = session.beginTransaction();
 		session.merge(user);
 		session.getTransaction().commit();
-		//session.close();
-		//int id = (int) session.save(user);
-		//tx1.commit();
-		//session.close();
+		// session.close();
+		// int id = (int) session.save(user);
+		// tx1.commit();
+		// session.close();
 	}
 
 	@Override
 	@Transactional
 	public MyUser findByConfirmationToken(String confirmationToken) {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();		
+		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<MyUser> criteria = builder.createQuery(MyUser.class);
 		Root<MyUser> contactRoot = criteria.from(MyUser.class);
-		//ParameterExpression<Integer> p = builder.parameter(Integer.class);
+		// ParameterExpression<Integer> p = builder.parameter(Integer.class);
 		criteria.select(contactRoot).where(builder.equal(contactRoot.get("confirmationToken"), confirmationToken));
 		MyUser user_ = (MyUser) session.createQuery(criteria).getSingleResult();
-		//session.close();
+		// session.close();
 		return user_;
 	}
 
@@ -103,13 +107,13 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	@Transactional
 	public MyUser findUserByEmail(String email) {
 		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();		
+		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<MyUser> criteria = builder.createQuery(MyUser.class);
 		Root<MyUser> contactRoot = criteria.from(MyUser.class);
-		//ParameterExpression<Integer> p = builder.parameter(Integer.class);
+		// ParameterExpression<Integer> p = builder.parameter(Integer.class);
 		criteria.select(contactRoot).where(builder.equal(contactRoot.get("email"), email));
 		MyUser user_ = (MyUser) session.createQuery(criteria).getSingleResult();
-		//session.close();
+		// session.close();
 		return user_;
 	}
 }
