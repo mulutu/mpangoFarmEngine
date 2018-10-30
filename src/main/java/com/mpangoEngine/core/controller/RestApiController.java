@@ -132,8 +132,7 @@ public class RestApiController {
 	}
 
 	@RequestMapping(value = "/register2", method = RequestMethod.POST)
-	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult,
-			HttpServletRequest request, UriComponentsBuilder ucBuilder) {
+	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult, HttpServletRequest request, UriComponentsBuilder ucBuilder) {
 
 		System.out.println("userForm >>> " + user.getEmail() + " ::: " + user.getPassword());
 		
@@ -143,12 +142,13 @@ public class RestApiController {
 		userValidator.validate(user, bindingResult);
 
 		if (bindingResult.hasErrors()) {
-			return new ResponseEntity(new CustomErrorType("Error creating user  " + user.getEmail() + "."),
-					HttpStatus.CONFLICT);
+			return new ResponseEntity(new CustomErrorType("Error creating user  " + user.getEmail() + "."), HttpStatus.CONFLICT);
 		}
 
 		// Generate random 36-character string token for confirmation link
 		user.setConfirmationToken(UUID.randomUUID().toString());
+		
+		logger.info("RestApiController ---> registration() >>>> randomUUID {}", UUID.randomUUID().toString());
 
 		userService.saveUser(user);
 
@@ -156,16 +156,18 @@ public class RestApiController {
 		SimpleMailMessage registrationEmail = new SimpleMailMessage();
 		registrationEmail.setTo(user.getEmail());
 		registrationEmail.setSubject("Registration Confirmation");
-		registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl
-				+ "/confirm?token=" + user.getConfirmationToken());
+		registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl + "/confirm?token=" + user.getConfirmationToken());
 		registrationEmail.setFrom("noreply@domain.com");
+		
+		logger.info("RestApiController ---> registration() >>>> sendEmail ");
 
-		// emailService.sendEmail(registrationEmail);
+		emailService.sendEmail(registrationEmail);
 
-		// model.addAttribute("confirmationMessage", "A confirmation e-mail has been
-		// sent to " + user.getEmail());
+		// model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
 
-		// securityService.autologin(user.getEmail(), user.getPassword());
+		// securityService.autologin(user.getEmail(), user.getPassword());		
+		
+		logger.info("RestApiController ---> registration() >>>> email sent ");
 
 		return new ResponseEntity<String>(user.getEmail(), HttpStatus.CREATED);
 	}
