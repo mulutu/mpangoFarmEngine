@@ -1,17 +1,24 @@
 package com.mpangoEngine.core.dao.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Component;
 
 import com.mpangoEngine.core.dao.UserDao;
+import com.mpangoEngine.core.model.Customer;
+import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.MyUser;
 
 import javax.persistence.EntityManagerFactory;
@@ -25,6 +32,8 @@ import javax.transaction.Transactional;
 @Component
 @Transactional
 public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
+
+	public static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
 
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
@@ -63,16 +72,14 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 
 	@Override
 	@Transactional
-	public MyUser findUserByUserName(String username) {
-		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaQuery<MyUser> criteria = builder.createQuery(MyUser.class);
-		Root<MyUser> contactRoot = criteria.from(MyUser.class);
-		// ParameterExpression<Integer> p = builder.parameter(Integer.class);
-		criteria.select(contactRoot).where(builder.equal(contactRoot.get("username"), username));
-		MyUser user_ = (MyUser) session.createQuery(criteria).getSingleResult();
-		// session.close();
-		return user_;
+	public MyUser findUserByUserName(String username) { // to modify
+		String Query = "SELECT * FROM users WHERE username = ?";
+
+		MyUser user = (MyUser) jdbcTemplate.queryForObject(Query, new Object[] { username }, new BeanPropertyRowMapper(MyUser.class));
+		
+		logger.debug("UserDaoImpl->findUserByUserName() >>> Query {} ", Query);
+		
+		return user;
 	}
 
 	@Override
