@@ -20,6 +20,7 @@ import com.mpangoEngine.core.dao.UserDao;
 import com.mpangoEngine.core.model.Customer;
 import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.MyUser;
+import com.mpangoEngine.core.model.Role;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -73,14 +74,28 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	@Override
 	@Transactional
 	public MyUser findUserByUserName(String username) { // to modify
-		String Query = "SELECT * FROM users WHERE username = ?";
+		String Query = "SELECT * FROM user WHERE username = ?";
 
 		MyUser user = (MyUser) jdbcTemplate.queryForObject(Query, new Object[] { username }, new BeanPropertyRowMapper(MyUser.class));
 		
 		logger.debug("UserDaoImpl->findUserByUserName() >>> Query {} ", Query);
 		
+		logger.debug("UserDaoImpl->findUserByUserName() >>> user {} ", user);
+		
 		return user;
 	}
+	
+	@Override
+	@Transactional
+	public List<String> getRoleNames(Long userId) {
+        String sql = "SELECT * FROM `user_role`, `role` WHERE role.id=user_role.role_id and user_role.user_id= ? ";
+ 
+        Object[] params = new Object[] { userId };
+ 
+        List<String> roles = this.getJdbcTemplate().queryForList(sql, params, String.class);
+ 
+        return roles;
+    }
 
 	@Override
 	@Transactional

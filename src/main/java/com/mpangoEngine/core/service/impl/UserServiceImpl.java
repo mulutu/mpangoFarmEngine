@@ -38,8 +38,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	public static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	boolean alreadySetup = false;
-	
-	@Autowired 
+
+	@Autowired
 	DataSource dataSource;
 
 	@Autowired
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Override
 	@Transactional
 	public void enableUser(MyUser user) {
-		//user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		// user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setEnabled(true);
 		userDao.saveUser(user);
 	}
@@ -133,29 +133,67 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 		return role;
 	}
-	
+
 	@Override
 	@Transactional
-	public Set<Role> getUserRoles(String username){
+	public Set<Role> getUserRoles(String username) {
 		Set<Role> roles = null;
 		MyUser user = userDao.findUserByUserName(username);
 		roles = user.getRoles();
 		return roles;
 	}
 
+	@Transactional
+	public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
+
+		UserDetails userDetails = null;
+		MyUser userEntity = userDao.findUserByUserName(username);
+		if (userEntity == null)
+			throw new UsernameNotFoundException("user not found");
+
+		return buildUserFromUserEntity(userEntity);
+	}
+	
+	// http://codehustler.org/blog/spring-security-tutorial-form-login/
+	// https://stackoverflow.com/questions/2683308/spring-security-3-database-authentication-with-hibernate/2701722#2701722
+
+	@Transactional
+	User buildUserFromUserEntity(MyUser MyUser) {
+
+		String username = MyUser.getUsername();
+		String password = MyUser.getPassword();
+		boolean enabled = MyUser.isEnabled();
+		boolean accountNonExpired = MyUser.isEnabled();
+		boolean credentialsNonExpired = MyUser.isEnabled();
+		boolean accountNonLocked = MyUser.isEnabled();
+		
+		long userID = MyUser.getId();
+
+		Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		
+		List<String> roleNames = this.getRoleNames(userID);
+		
+		for (SecurityRoleEntity role : MyUser.getRoles()) {
+			authorities.add(new GrantedAuthorityImpl(role.getRoleName()));
+		}
+
+		User user = new User(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
+				authorities, id);
+		return user;
+	}
+	
+	
 
 	@Override
 	@Transactional
 	public MyUser findUserByUserName(String username) throws UsernameNotFoundException {
 		MyUser user = userDao.findUserByUserName(username);
-		//Set<Role> roles = new HashSet<Role>();
+		// Set<Role> roles = new HashSet<Role>();
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		for (Role role : user.getRoles()) {
 			// grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
-			authorities.add(new SimpleGrantedAuthority(role.getName()));	
+			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		}
-		
-	
 
 		String name = user.getUsername();
 		String password = user.getPassword();
@@ -166,15 +204,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 		// authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 
-		//return new org.springframework.security.core.userdetails.User(name, password, enabled, accountNonExpired,
-				//credentialsNonExpired, accountNonLocked, authorities);
+		// return new org.springframework.security.core.userdetails.User(name, password,
+		// enabled, accountNonExpired,
+		// credentialsNonExpired, accountNonLocked, authorities);
 
 		// return new
 		// org.springframework.security.core.userdetails.User(user.getEmail(),
 		// user.getPassword(), grantedAuthorities);
-		
+
 		return user;
-	} 
+	}
 
 	@Override
 	@Transactional
@@ -186,7 +225,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String username) {
-		logger.debug("loadUserByUsername userlogin... username >>> {} ",username);
+		logger.debug("loadUserByUsername userlogin... username >>> {} ", username);
 		MyUser user = userDao.findUserByUserName(username);
 		logger.debug("loadUserByUsername userlogin... findUserByUserName(username) >>> {} ", user);
 		// Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -194,7 +233,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		for (Role role : user.getRoles()) {
 			// grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
-			logger.debug("loadUserByUsername userlogin... findUserByUserName authorities new SimpleGrantedAuthority(role.getName()) >>> {} ", new SimpleGrantedAuthority(role.getName()));
+			logger.debug(
+					"loadUserByUsername userlogin... findUserByUserName authorities new SimpleGrantedAuthority(role.getName()) >>> {} ",
+					new SimpleGrantedAuthority(role.getName()));
 		}
 
 		String name = user.getUsername();
@@ -203,20 +244,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		boolean accountNonExpired = true;
 		boolean credentialsNonExpired = true;
 		boolean accountNonLocked = true;
-		
+
 		logger.debug("loadUserByUsername userlogin... findUserByUserName name >>> {} ", name);
 		logger.debug("loadUserByUsername userlogin... findUserByUserName password >>> {} ", password);
 		logger.debug("loadUserByUsername userlogin... findUserByUserName authorities >>> {} ", authorities);
 
 		// authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 
-		UserDetails user_ = new User(name, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-		return user_; 
+		UserDetails user_ = new User(name, password, enabled, accountNonExpired, credentialsNonExpired,
+				accountNonLocked, authorities);
+		return user_;
 
 		// return new
 		// org.springframework.security.core.userdetails.User(user.getEmail(),
 		// user.getPassword(), grantedAuthorities);
-		
+
 	}
 
 }
