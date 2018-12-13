@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	// https://stackoverflow.com/questions/2683308/spring-security-3-database-authentication-with-hibernate/2701722#2701722
 
 	@Transactional
-	User buildUserFromUserEntity(MyUser MyUser) {
+	public UserDetails buildUserFromUserEntity(MyUser MyUser) {
 
 		String username = MyUser.getUsername();
 		String password = MyUser.getPassword();
@@ -169,17 +169,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		
 		long userID = MyUser.getId();
 
-		Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		//Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		
-		List<String> roleNames = this.getRoleNames(userID);
+		List<String> roleNames = userDao.getRoleNames(userID);
 		
-		for (SecurityRoleEntity role : MyUser.getRoles()) {
-			authorities.add(new GrantedAuthorityImpl(role.getRoleName()));
-		}
+		List<GrantedAuthority> grantList = new ArrayList<GrantedAuthority>();
+        if (roleNames != null) {
+            for (String role : roleNames) {
+                // ROLE_USER, ROLE_ADMIN,..
+                GrantedAuthority authority = new SimpleGrantedAuthority(role);
+                grantList.add(authority);
+            }
+        }		
+        //UserDetails userDetails = (UserDetails) new User(username, password, grantList); 
 
-		User user = new User(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
-				authorities, id);
-		return user;
+        UserDetails user = (UserDetails) new User(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantList);
+		
+        return user;
+        
 	}
 	
 	

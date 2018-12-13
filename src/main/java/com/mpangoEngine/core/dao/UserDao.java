@@ -17,5 +17,7 @@ public interface UserDao {
 	List<MyUser> getAllUsers();
 	
 	public void saveUser(MyUser user);
+	
+	public List<String> getRoleNames(long userId);
 
 }
