@@ -27,5 +27,7 @@ public interface UserService {
 	public void enableUser(MyUser user);
 	
 	UserDetails loadUserByUsername(String username);
+	
+	public UserDetails loadUserByUsername2(String username);
 
 }

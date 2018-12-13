@@ -143,15 +143,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return roles;
 	}
 
+	@Override
 	@Transactional
 	public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
-
-		UserDetails userDetails = null;
 		MyUser userEntity = userDao.findUserByUserName(username);
-		if (userEntity == null)
+		if (userEntity == null ) {
 			throw new UsernameNotFoundException("user not found");
-
-		return buildUserFromUserEntity(userEntity);
+		}			
+		return buildUserFromUserEntity(userEntity);	
 	}
 	
 	// http://codehustler.org/blog/spring-security-tutorial-form-login/

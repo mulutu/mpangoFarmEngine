@@ -85,7 +85,9 @@ public class SecurityServiceImpl implements SecurityService {
 	public Collection<? extends GrantedAuthority> userlogin(String username, String password) {
 		MyUser user = null;
 		Authentication authenticatedUse = null;
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		//UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		
+		UserDetails userDetails = userService.loadUserByUsername2(username);
 		
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
 		

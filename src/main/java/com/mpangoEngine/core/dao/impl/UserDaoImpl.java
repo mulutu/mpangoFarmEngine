@@ -88,7 +88,7 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	@Override
 	@Transactional
 	public List<String> getRoleNames(long userId) {
-        String sql = "SELECT * FROM `user_role`, `role` WHERE role.id=user_role.role_id and user_role.user_id= ? ";
+        String sql = "SELECT `role`.name FROM `user_role`, `role` WHERE role.id=user_role.role_id and user_role.user_id= ? ";
  
         Object[] params = new Object[] { userId };
  

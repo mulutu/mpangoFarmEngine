@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -101,29 +102,31 @@ public class RestApiController {
 		boolean isAdmin = false;
 		String userType = "";
 
-		MyUser userDetails = userService.findUserByUserName(username);
+		//MyUser userDetails = userService.findUserByUserName(username);
+		
+		UserDetails userDetails = userService.loadUserByUsername2(username);
 
-		Collection<? extends GrantedAuthority> authorities = securityService.userlogin(username, pasword);
+		//Collection<? extends GrantedAuthority> authorities = securityService.userlogin(username, pasword);
 
-		for (GrantedAuthority grantedAuthority : authorities) {
-			if (grantedAuthority.getAuthority().equals("ROLE_USER")) {
-				isUser = true;
-				break;
-			} else if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
-				isAdmin = true;
-				break;
-			}
-		}
+		//for (GrantedAuthority grantedAuthority : authorities) {
+			//if (grantedAuthority.getAuthority().equals("ROLE_USER")) {
+				//isUser = true;
+				//break;
+			//} else if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
+				//isAdmin = true;
+				//break;
+			//}
+		//}
 
-		if (isAdmin) {
-			userType = "ROLE_ADMIN";
-		} else if (isUser) {
-			userType = "ROLE_USER";
-		} else {
-			throw new IllegalStateException();
-		}
+		//if (isAdmin) {
+		//	userType = "ROLE_ADMIN";
+		//} else if (isUser) {
+		//	userType = "ROLE_USER";
+		//} else {
+		//	throw new IllegalStateException();
+		//}
 
-		userDetails.setUserType(userType);
+		//userDetails.setUserType(userType);
 
 		logger.info("API login login... myuser: {}", userDetails);
 
