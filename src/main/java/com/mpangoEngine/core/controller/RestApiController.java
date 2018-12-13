@@ -94,7 +94,7 @@ public class RestApiController {
 	 * Login
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> login(@RequestBody MyUser user) {
+	public ResponseEntity<UserDetails> login(@RequestBody MyUser user) {
 		String username = user.getUsername();
 		String pasword = user.getPassword();
 		Authentication authentication = null;
