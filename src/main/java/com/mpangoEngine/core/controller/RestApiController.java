@@ -44,6 +44,7 @@ import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.MyUser;
 import com.mpangoEngine.core.model.PaymentMethod;
 import com.mpangoEngine.core.model.Project;
+import com.mpangoEngine.core.model.Role;
 import com.mpangoEngine.core.model.Supplier;
 import com.mpangoEngine.core.service.SecurityService;
 import com.mpangoEngine.core.service.UserService;
@@ -57,18 +58,30 @@ public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
-	@Autowired  ExpenseDao expenseDao;
-	@Autowired 	IncomeDao incomeDao;
-	@Autowired 	ProjectDao projectDao;
-	@Autowired 	FarmDao farmDao;
-	@Autowired 	PaymentMethodDao paymentMethodDao;
-	@Autowired 	ChartOfAccountsDao chartOfAccountsDao;
-	@Autowired 	SupplierDao supplierDao;
-	@Autowired 	private CustomerDao customerDao;
-	@Autowired 	private UserService userService;
-	@Autowired 	private SecurityService securityService;
-	@Autowired 	private UserValidator userValidator;
-	@Autowired 	private EmailService emailService;
+	@Autowired
+	ExpenseDao expenseDao;
+	@Autowired
+	IncomeDao incomeDao;
+	@Autowired
+	ProjectDao projectDao;
+	@Autowired
+	FarmDao farmDao;
+	@Autowired
+	PaymentMethodDao paymentMethodDao;
+	@Autowired
+	ChartOfAccountsDao chartOfAccountsDao;
+	@Autowired
+	SupplierDao supplierDao;
+	@Autowired
+	private CustomerDao customerDao;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private SecurityService securityService;
+	@Autowired
+	private UserValidator userValidator;
+	@Autowired
+	private EmailService emailService;
 
 	@InitBinder
 	public void setupDefaultInitBinder(WebDataBinder binder) {
@@ -94,7 +107,7 @@ public class RestApiController {
 	 * Login
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<UserDetails> login(@RequestBody MyUser user) {
+	public ResponseEntity<?> login(@RequestBody MyUser user) {
 		String username = user.getUsername();
 		String pasword = user.getPassword();
 		Authentication authentication = null;
@@ -102,55 +115,44 @@ public class RestApiController {
 		boolean isAdmin = false;
 		String userType = "";
 
-		//MyUser userDetails = userService.findUserByUserName(username);
-		
+		MyUser myUser = userService.findUserByUserName(username);
+
 		UserDetails userDetails = userService.loadUserByUsername2(username);
 
-		//Collection<? extends GrantedAuthority> authorities = securityService.userlogin(username, pasword);
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) userDetails.getAuthorities();
 
-		//for (GrantedAuthority grantedAuthority : authorities) {
-			//if (grantedAuthority.getAuthority().equals("ROLE_USER")) {
-				//isUser = true;
-				//break;
-			//} else if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
-				//isAdmin = true;
-				//break;
-			//}
-		//}
+		String role = "";
+		for (GrantedAuthority authority : authorities) {
+			role = authority.getAuthority();
+		}
+		
+		myUser.setUserType(role);
 
-		//if (isAdmin) {
-		//	userType = "ROLE_ADMIN";
-		//} else if (isUser) {
-		//	userType = "ROLE_USER";
-		//} else {
-		//	throw new IllegalStateException();
-		//}
+		logger.info("API login login... myuser: {}", myUser);
 
-		//userDetails.setUserType(userType);
-
-		logger.info("API login login... myuser: {}", userDetails);
-
-		return ResponseEntity.ok(userDetails);
+		return ResponseEntity.ok(myUser);
 
 	}
 
 	@RequestMapping(value = "/register2", method = RequestMethod.POST)
-	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult, HttpServletRequest request, UriComponentsBuilder ucBuilder) {
+	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult,
+			HttpServletRequest request, UriComponentsBuilder ucBuilder) {
 
 		System.out.println("userForm >>> " + user.getEmail() + " ::: " + user.getPassword());
-		
+
 		logger.info("RestApiController ---> registration() >>>> email {}", user.getEmail());
 		logger.info("RestApiController ---> registration() >>>> getPassword {}", user.getPassword());
-		
+
 		userValidator.validate(user, bindingResult);
 
 		if (bindingResult.hasErrors()) {
-			return new ResponseEntity(new CustomErrorType("Error creating user  " + user.getEmail() + "."), HttpStatus.CONFLICT);
+			return new ResponseEntity(new CustomErrorType("Error creating user  " + user.getEmail() + "."),
+					HttpStatus.CONFLICT);
 		}
 
 		// Generate random 36-character string token for confirmation link
 		user.setConfirmationToken(UUID.randomUUID().toString());
-		
+
 		logger.info("RestApiController ---> registration() >>>> randomUUID {}", UUID.randomUUID().toString());
 
 		userService.saveUser(user);
@@ -159,17 +161,19 @@ public class RestApiController {
 		SimpleMailMessage registrationEmail = new SimpleMailMessage();
 		registrationEmail.setTo(user.getEmail());
 		registrationEmail.setSubject("Registration Confirmation");
-		registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl + "/confirm?token=" + user.getConfirmationToken());
+		registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl
+				+ "/confirm?token=" + user.getConfirmationToken());
 		registrationEmail.setFrom("noreply@domain.com");
-		
+
 		logger.info("RestApiController ---> registration() >>>> sendEmail ");
 
 		emailService.sendEmail(registrationEmail);
 
-		// model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
+		// model.addAttribute("confirmationMessage", "A confirmation e-mail has been
+		// sent to " + user.getEmail());
 
-		// securityService.autologin(user.getEmail(), user.getPassword());		
-		
+		// securityService.autologin(user.getEmail(), user.getPassword());
+
 		logger.info("RestApiController ---> registration() >>>> email sent ");
 
 		return new ResponseEntity<String>(user.getEmail(), HttpStatus.CREATED);
@@ -310,22 +314,21 @@ public class RestApiController {
 		}
 		return new ResponseEntity<List<Income>>(incomes, HttpStatus.OK);
 	}
-	
+
 	// -------------------Retrieve Single income
-		@RequestMapping(value = "/income/{id}", method = RequestMethod.GET)
-		@ResponseBody
-		public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
-			logger.info("Fetching Income with id {}", id);
-			Income income = incomeDao.findById(id);
+	@RequestMapping(value = "/income/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
+		logger.info("Fetching Income with id {}", id);
+		Income income = incomeDao.findById(id);
 
-			if (income == null) {
-				logger.error("Income with id {} not found.", id);
-				return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"),
-						HttpStatus.NOT_FOUND);
-			}
-
-			return new ResponseEntity<Income>(income, HttpStatus.OK);
+		if (income == null) {
+			logger.error("Income with id {} not found.", id);
+			return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"), HttpStatus.NOT_FOUND);
 		}
+
+		return new ResponseEntity<Income>(income, HttpStatus.OK);
+	}
 
 	// -------------------Retrieve Single expense
 	@RequestMapping(value = "/expense/{id}", method = RequestMethod.GET)
@@ -342,8 +345,6 @@ public class RestApiController {
 
 		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
 	}
-
-	
 
 	// ---------------- Create an Expense --------------//
 	@RequestMapping(value = "/expense/", method = RequestMethod.POST)

@@ -1,5 +1,6 @@
 package com.mpangoEngine.core.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public interface UserService {
 	
 	MyUser findUserByEmail(String email);	
 	
-	Set<Role> getUserRoles(String username);
+	Collection<Role> getUserRoles(String username);
 	
 	MyUser findUserByUserName(String username);
 	

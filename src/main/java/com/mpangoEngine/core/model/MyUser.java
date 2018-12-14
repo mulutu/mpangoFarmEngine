@@ -1,6 +1,7 @@
 package com.mpangoEngine.core.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +51,8 @@ public class MyUser implements Serializable {
 	@JoinTable(name = "user_role", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "id") })
-	private Set<Role> roles;
+	//private Set<Role> roles;
+	private Collection<Role> roles;
 	
 	@Transient
 	private String userType;
@@ -62,14 +64,25 @@ public class MyUser implements Serializable {
 	public void setUserType(String userType) {
 		this.userType = userType;
 	}
+	
+	
+	
 
-	public Set<Role> getRoles() {
+	//public Set<Role> getRoles() {
+		//return roles;
+	//}
+
+	public Collection<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Collection<Role> roles) {
 		this.roles = roles;
 	}
+
+	//public void setRoles(Set<Role> roles) {
+		//this.roles = roles;
+	//}
 	
 
 	public String getUsername() {
