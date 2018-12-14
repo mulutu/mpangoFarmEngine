@@ -75,27 +75,19 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 	@Transactional
 	public MyUser findUserByUserName(String username) { // to modify
 		String Query = "SELECT * FROM user WHERE username = ?";
-
-		MyUser user = (MyUser) jdbcTemplate.queryForObject(Query, new Object[] { username }, new BeanPropertyRowMapper(MyUser.class));
-		
-		logger.debug("UserDaoImpl->findUserByUserName() >>> Query {} ", Query);
-		
-		logger.debug("UserDaoImpl->findUserByUserName() >>> user {} ", user);
-		
+		MyUser user = (MyUser) jdbcTemplate.queryForObject(Query, new Object[] { username },
+				new BeanPropertyRowMapper(MyUser.class));
 		return user;
 	}
-	
+
 	@Override
 	@Transactional
 	public List<String> getRoleNames(long userId) {
-        String sql = "SELECT `role`.name FROM `user_role`, `role` WHERE role.id=user_role.role_id and user_role.user_id= ? ";
- 
-        Object[] params = new Object[] { userId };
- 
-        List<String> roles = this.getJdbcTemplate().queryForList(sql, params, String.class);
- 
-        return roles;
-    }
+		String sql = "SELECT `role`.name FROM `user_role`, `role` WHERE role.id=user_role.role_id and user_role.user_id= ? ";
+		Object[] params = new Object[] { userId };
+		List<String> roles = this.getJdbcTemplate().queryForList(sql, params, String.class);
+		return roles;
+	}
 
 	@Override
 	@Transactional

@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		MyUser userEntity = userDao.findUserByUserName(username);
 		if (userEntity == null ) {
 			throw new UsernameNotFoundException("user not found");
@@ -186,9 +186,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		
         return user;
         
-	}
-	
-	
+	}	
 
 	@Override
 	@Transactional
@@ -202,45 +200,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	public MyUser findByConfirmationToken(String confirmationToken) {
 		MyUser user = userDao.findByConfirmationToken(confirmationToken);
 		return user;
-	}
-
-	@Override
-	@Transactional
-	public UserDetails loadUserByUsername(String username) {
-		logger.debug("loadUserByUsername userlogin... username >>> {} ", username);
-		MyUser user = userDao.findUserByUserName(username);
-		logger.debug("loadUserByUsername userlogin... findUserByUserName(username) >>> {} ", user);
-		// Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		for (Role role : user.getRoles()) {
-			// grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
-			authorities.add(new SimpleGrantedAuthority(role.getName()));
-			logger.debug(
-					"loadUserByUsername userlogin... findUserByUserName authorities new SimpleGrantedAuthority(role.getName()) >>> {} ",
-					new SimpleGrantedAuthority(role.getName()));
-		}
-
-		String name = user.getUsername();
-		String password = user.getPassword();
-		boolean enabled = true;
-		boolean accountNonExpired = true;
-		boolean credentialsNonExpired = true;
-		boolean accountNonLocked = true;
-
-		logger.debug("loadUserByUsername userlogin... findUserByUserName name >>> {} ", name);
-		logger.debug("loadUserByUsername userlogin... findUserByUserName password >>> {} ", password);
-		logger.debug("loadUserByUsername userlogin... findUserByUserName authorities >>> {} ", authorities);
-
-		// authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
-
-		UserDetails user_ = new User(name, password, enabled, accountNonExpired, credentialsNonExpired,
-				accountNonLocked, authorities);
-		return user_;
-
-		// return new
-		// org.springframework.security.core.userdetails.User(user.getEmail(),
-		// user.getPassword(), grantedAuthorities);
-
 	}
 
 }

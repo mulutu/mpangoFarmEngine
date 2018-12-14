@@ -38,10 +38,10 @@ import com.mpangoEngine.core.util.CustomErrorType;
 public class SecurityServiceImpl implements SecurityService {
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -58,7 +58,7 @@ public class SecurityServiceImpl implements SecurityService {
 		}
 		return null;
 	}
-	
+
 	public MyUser findLoggedInUser() {
 		Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
 		if (userDetails instanceof UserDetails) {
@@ -85,34 +85,28 @@ public class SecurityServiceImpl implements SecurityService {
 	public Collection<? extends GrantedAuthority> userlogin(String username, String password) {
 		MyUser user = null;
 		Authentication authenticatedUse = null;
-		//UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-		
-		UserDetails userDetails = userService.loadUserByUsername2(username);
-		
-		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
-		
-		usernamePasswordAuthenticationToken.setDetails(userDetails);
-		
-		logger.info("API login userlogin... userlogin usernamePasswordAuthenticationToken: >>>>>>>> 111 {}", usernamePasswordAuthenticationToken);
-		
-		logger.info("API login userlogin... userlogin userDetails.getAuthorities(): >>>>>>>> {}", userDetails.getAuthorities());
-		
-		logger.info("API login userlogin... userlogin usernamePasswordAuthenticationToken.getAuthorities(): >>>>>>>> {}", usernamePasswordAuthenticationToken.getAuthorities());
-		
+		// UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+		UserDetails userDetails = userService.loadUserByUsername(username);
+
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+				userDetails, password, userDetails.getAuthorities());
+
+		usernamePasswordAuthenticationToken.setDetails(userDetails);
 
 		try {
-			authenticatedUse = authenticationManager.authenticate(usernamePasswordAuthenticationToken);	
+			authenticatedUse = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 			if (usernamePasswordAuthenticationToken.isAuthenticated()) {
 				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 				String email = usernamePasswordAuthenticationToken.getName();
-				//user = userService.findUserByEmail(email);
-				//user = userService.findUserByUserName(email);
-				logger.info("API login userlogin... userlogin usernamePasswordAuthenticationToken: >>>>>>>> 222 {}", usernamePasswordAuthenticationToken);
-			}			
+				// user = userService.findUserByEmail(email);
+				// user = userService.findUserByUserName(email);
+				logger.info("API login userlogin... userlogin usernamePasswordAuthenticationToken: >>>>>>>> 222 {}",
+						usernamePasswordAuthenticationToken);
+			}
 		} catch (AuthenticationException ae) {
-			logger.info("API login userlogin... Authentication exception trace: {}", ae); 
-		}		
+			logger.info("API login userlogin... Authentication exception trace: {}", ae);
+		}
 		return usernamePasswordAuthenticationToken.getAuthorities();
 	}
 }

@@ -110,28 +110,19 @@ public class RestApiController {
 	public ResponseEntity<?> login(@RequestBody MyUser user) {
 		String username = user.getUsername();
 		String pasword = user.getPassword();
-		Authentication authentication = null;
-		boolean isUser = false;
-		boolean isAdmin = false;
-		String userType = "";
 
 		MyUser myUser = userService.findUserByUserName(username);
-
-		UserDetails userDetails = userService.loadUserByUsername2(username);
+		UserDetails userDetails = userService.loadUserByUsername(username);
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) userDetails.getAuthorities();
 
 		String role = "";
 		for (GrantedAuthority authority : authorities) {
 			role = authority.getAuthority();
-		}
-		
+		}		
 		myUser.setUserType(role);
 
-		logger.info("API login login... myuser: {}", myUser);
-
 		return ResponseEntity.ok(myUser);
-
 	}
 
 	@RequestMapping(value = "/register2", method = RequestMethod.POST)
