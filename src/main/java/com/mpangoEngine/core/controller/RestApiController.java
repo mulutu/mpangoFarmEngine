@@ -109,7 +109,7 @@ public class RestApiController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> login(@RequestBody MyUser user) {
 		String username = user.getUsername();
-		String pasword = user.getPassword();
+		String password = user.getPassword();
 
 		MyUser myUser = userService.findUserByUserName(username);
 		UserDetails userDetails = userService.loadUserByUsername(username);
