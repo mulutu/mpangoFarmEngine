@@ -113,6 +113,16 @@ public class ExpenseDaoImpl extends JdbcDaoSupport implements ExpenseDao {
 		String sql = "INSERT INTO expense "
 				+ "(`id`, `account_id`, `amount`, `expense_date`, `notes`, `payment_method_id`, `supplier_id`, `user_id`, `project_id`) "
 				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";
+		
+		logger.debug("ExpenseDaoImpl->save() >>> getId {} ", expense.getId());
+		logger.debug("ExpenseDaoImpl->save() >>> getAccountId {} ", expense.getAccountId());
+		logger.debug("ExpenseDaoImpl->save() >>> getAmount {} ", expense.getAmount());
+		logger.debug("ExpenseDaoImpl->save() >>> getExpenseDate {} ", expense.getExpenseDate());
+		logger.debug("ExpenseDaoImpl->save() >>> getNotes {} ", expense.getNotes());
+		logger.debug("ExpenseDaoImpl->save() >>> getPaymentMethodId {} ", expense.getPaymentMethodId());
+		logger.debug("ExpenseDaoImpl->save() >>> getSupplierId {} ", expense.getSupplierId());
+		logger.debug("ExpenseDaoImpl->save() >>> getUserId {} ", expense.getUserId());
+		logger.debug("ExpenseDaoImpl->save() >>> getProjectId {} ", expense.getProjectId() );
 
 		getJdbcTemplate().update(sql,
 				new Object[] { expense.getId(), expense.getAccountId(), expense.getAmount(), expense.getExpenseDate(),

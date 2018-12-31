@@ -1,6 +1,9 @@
 package com.mpangoEngine.core.model;
 
+
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -84,6 +87,25 @@ public class Expense {
 		ProjectId = projectId;
 		Notes = notes;
 		UserId = userId;
+	}
+	
+	public Expense(String expDate, BigDecimal amount, int supplierId, int paymentMethodId, int accountId, int projectId, String notes, int userId) {
+		//ExpenseDate = expenseDate;
+		Amount = amount;
+		SupplierId = supplierId;
+		PaymentMethodId = paymentMethodId;
+		AccountId = accountId;
+		ProjectId = projectId;
+		Notes = notes;
+		UserId = userId;
+		
+		Date expenseDate = null;
+        try {
+        	expenseDate=new SimpleDateFormat("dd-MM-yyyy").parse(expDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        ExpenseDate = expenseDate;
 	}
 
 	

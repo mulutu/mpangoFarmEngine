@@ -338,17 +338,18 @@ public class RestApiController {
 	}
 
 	// ---------------- Create an Expense --------------//
-	@RequestMapping(value = "/expense/", method = RequestMethod.POST)
-	public ResponseEntity<?> createExpense(@RequestBody Expense expense, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating Expense >>>> ", expense);
+	@RequestMapping(value = "/expense", method = RequestMethod.POST)
+	public ResponseEntity<?> createExpense(@RequestBody Expense expense /*, UriComponentsBuilder ucBuilder*/ ) {
+		//logger.info("Creating Expense >>>> {}", expense);
+		
 		if (expenseDao.existsById(expense.getId())) {
 			return new ResponseEntity(new CustomErrorType("Error creating expense id:  " + expense.getId() + "."),
 					HttpStatus.CONFLICT);
 		}
 		expenseDao.save(expense);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/expense/{id}").buildAndExpand(expense.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+		//HttpHeaders headers = new HttpHeaders();
+		//headers.setLocation(ucBuilder.path("/api/expense/{id}").buildAndExpand(expense.getId()).toUri());
+		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}
 
 	// ---------------- Create a project ------------- //
