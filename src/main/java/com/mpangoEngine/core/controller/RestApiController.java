@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.Authentication;
@@ -50,6 +51,7 @@ import com.mpangoEngine.core.service.SecurityService;
 import com.mpangoEngine.core.service.UserService;
 import com.mpangoEngine.core.util.CustomErrorType;
 import com.mpangoEngine.core.util.EmailService;
+import com.mpangoEngine.core.util.ResponseModel;
 import com.mpangoEngine.core.validator.UserValidator;
 
 @RestController
@@ -338,18 +340,18 @@ public class RestApiController {
 	}
 
 	// ---------------- Create an Expense --------------//
-	@RequestMapping(value = "/expense", method = RequestMethod.POST)
-	public ResponseEntity<?> createExpense(@RequestBody Expense expense /*, UriComponentsBuilder ucBuilder*/ ) {
-		//logger.info("Creating Expense >>>> {}", expense);
-		
-		if (expenseDao.existsById(expense.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating expense id:  " + expense.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		expenseDao.save(expense);
-		//HttpHeaders headers = new HttpHeaders();
-		//headers.setLocation(ucBuilder.path("/api/expense/{id}").buildAndExpand(expense.getId()).toUri());
-		return new ResponseEntity<String>(HttpStatus.CREATED);
+	@RequestMapping(value = "/expense", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	public ResponseEntity<ResponseModel> createExpense(@RequestBody Expense expense ) {
+		//logger.info("Creating Expense >>>> {}", expense);		
+		int rows = expenseDao.save(expense);	
+		int status = 1;
+		String res = "FAILED";			
+		if(rows > 0 ) {
+			res = "CREATED";
+			status = 0;
+		}		
+		ResponseModel response =  new ResponseModel(status,res);		
+		return ResponseEntity.ok(response);
 	}
 
 	// ---------------- Create a project ------------- //

@@ -22,7 +22,7 @@ public interface ExpenseDao {
 
 	// Expense findByName(String name);
 
-	void save(Expense expense);
+	int save(Expense expense);
 
 	// void updateExpense(Expense expense);
 

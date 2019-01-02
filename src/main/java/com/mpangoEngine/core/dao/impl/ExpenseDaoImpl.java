@@ -1,6 +1,7 @@
 package com.mpangoEngine.core.dao.impl;
 
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,7 +110,7 @@ public class ExpenseDaoImpl extends JdbcDaoSupport implements ExpenseDao {
 	}
 
 	@Override
-	public void save(Expense expense) {
+	public int save(Expense expense) {
 		String sql = "INSERT INTO expense "
 				+ "(`id`, `account_id`, `amount`, `expense_date`, `notes`, `payment_method_id`, `supplier_id`, `user_id`, `project_id`) "
 				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";
@@ -123,11 +124,13 @@ public class ExpenseDaoImpl extends JdbcDaoSupport implements ExpenseDao {
 		logger.debug("ExpenseDaoImpl->save() >>> getSupplierId {} ", expense.getSupplierId());
 		logger.debug("ExpenseDaoImpl->save() >>> getUserId {} ", expense.getUserId());
 		logger.debug("ExpenseDaoImpl->save() >>> getProjectId {} ", expense.getProjectId() );
+		
+		Object[] params = {expense.getId(), expense.getAccountId(), expense.getAmount(), expense.getExpenseDate(),
+				expense.getNotes(), expense.getPaymentMethodId(), expense.getSupplierId(), expense.getUserId(),
+				expense.getProjectId()};
+		int[] types = {Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER };
 
-		getJdbcTemplate().update(sql,
-				new Object[] { expense.getId(), expense.getAccountId(), expense.getAmount(), expense.getExpenseDate(),
-						expense.getNotes(), expense.getPaymentMethodId(), expense.getSupplierId(), expense.getUserId(),
-						expense.getProjectId() });	
+		return getJdbcTemplate().update( sql, params, types );	
 
 	}
 

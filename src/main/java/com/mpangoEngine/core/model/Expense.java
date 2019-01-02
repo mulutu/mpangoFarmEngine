@@ -1,9 +1,9 @@
 package com.mpangoEngine.core.model;
 
 
+import com.mpangoEngine.core.util.*;
+
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -14,9 +14,17 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+
 @Entity
+@JsonAutoDetect
 @Table(name = "expense")
-public class Expense {
+public class Expense{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
@@ -44,7 +52,6 @@ public class Expense {
 	private String Notes;
 
 	// ----------------------
-
 	
 	@Transient
 	private String Supplier;
@@ -64,7 +71,6 @@ public class Expense {
 	// ----------------------
 
 	public Expense() {
-		id = 0;
 	}
 
 	/*public Expense(Date ExpenseDate_, int userId, int supplierId, Integer Amount_, int paymentMethodId,
@@ -89,8 +95,8 @@ public class Expense {
 		UserId = userId;
 	}
 	
-	public Expense(String expDate, BigDecimal amount, int supplierId, int paymentMethodId, int accountId, int projectId, String notes, int userId) {
-		//ExpenseDate = expenseDate;
+	public Expense(Date expenseDate, BigDecimal amount, int supplierId, int paymentMethodId, int accountId, int projectId, String notes, int userId) {
+		ExpenseDate = expenseDate;
 		Amount = amount;
 		SupplierId = supplierId;
 		PaymentMethodId = paymentMethodId;
@@ -99,13 +105,20 @@ public class Expense {
 		Notes = notes;
 		UserId = userId;
 		
-		Date expenseDate = null;
+		
+		/*Date expenseDate_ = null;
         try {
-        	expenseDate=new SimpleDateFormat("dd-MM-yyyy").parse(expDate);
+        	//expenseDate_=new SimpleDateFormat("yyyy-MM-dd").parse(expenseDate);
+        	
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        	SimpleDateFormat output = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        	expenseDate_ = sdf.parse(expenseDate);
+        	//String formattedTime = output.format(d);        	
+        	
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        ExpenseDate = expenseDate;
+        ExpenseDate = expenseDate_; */
 	}
 
 	
@@ -157,10 +170,12 @@ public class Expense {
 		UserId = userId;
 	}
 
+	@JsonSerialize(using = JsonDateSerializer.class)
 	public Date getExpenseDate() {
 		return ExpenseDate;
 	}
 
+	@JsonDeserialize(using = JsonDateDeserializer.class, as = Date.class)
 	public void setExpenseDate(Date expDate) {
 		ExpenseDate = expDate;
 	}
@@ -242,12 +257,4 @@ public class Expense {
 			return false;
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		return "Expense [id=" + id + ", ExpenseDate=" + ExpenseDate + ", SupplierId=" + SupplierId + ", Amount=" + Amount
-				+ ", PaymentMethodId=" + PaymentMethodId + ", AccountId=" + AccountId + ", SupplierId=" + SupplierId
-				+ ", Notes=" + Notes + ", UserId=" + UserId + "]";
-	}
-
 }
