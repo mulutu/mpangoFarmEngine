@@ -148,15 +148,27 @@ public class IncomeDaoImpl extends JdbcDaoSupport implements IncomeDao {
 	}
 
 	@Override
-	public void save(Income income) {
+	public int save(Income income) {
 		String sql = "INSERT INTO income "
 				+ "(`id`, `account_id`, `amount`, `income_date`, `notes`, `payment_method_id`, `customer_id`, `user_id`, `project_id`) "
 				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";
-
-		getJdbcTemplate().update(sql,
-				new Object[] { income.getId(), income.getAccountId(), income.getAmount(), income.getIncomeDate(),
-						income.getNotes(), income.getPaymentMethodId(), income.getCustomerId(), income.getUserId(),
-						income.getProjectId() });	
+		
+		logger.debug("IncomeDaoImpl->save() >>> getId {} ", income.getId());
+		logger.debug("IncomeDaoImpl->save() >>> getAccountId {} ", income.getAccountId());
+		logger.debug("IncomeDaoImpl->save() >>> getAmount {} ", income.getAmount());
+		logger.debug("IncomeDaoImpl->save() >>> getExpenseDate {} ", income.getIncomeDate());
+		logger.debug("IncomeDaoImpl->save() >>> getNotes {} ", income.getNotes());
+		logger.debug("IncomeDaoImpl->save() >>> getPaymentMethodId {} ", income.getPaymentMethodId());
+		logger.debug("IncomeDaoImpl->save() >>> getSupplierId {} ", income.getCustomerId());
+		logger.debug("IncomeDaoImpl->save() >>> getUserId {} ", income.getUserId());
+		logger.debug("IncomeDaoImpl->save() >>> getProjectId {} ", income.getProjectId() );
+		
+		Object[] params = {income.getId(), income.getAccountId(), income.getAmount(), income.getIncomeDate(),
+				income.getNotes(), income.getPaymentMethodId(), income.getCustomerId(), income.getUserId(),
+				income.getProjectId()};
+		int[] types = {Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER };
+		
+		return getJdbcTemplate().update( sql, params, types );
 
 	}
 	

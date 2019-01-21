@@ -339,20 +339,7 @@ public class RestApiController {
 		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
 	}
 
-	// ---------------- Create an Expense --------------//
-	@RequestMapping(value = "/expense", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-	public ResponseEntity<ResponseModel> createExpense(@RequestBody Expense expense ) {
-		//logger.info("Creating Expense >>>> {}", expense);		
-		int rows = expenseDao.save(expense);	
-		int status = 1;
-		String res = "FAILED";			
-		if(rows > 0 ) {
-			res = "CREATED";
-			status = 0;
-		}		
-		ResponseModel response =  new ResponseModel(status,res);		
-		return ResponseEntity.ok(response);
-	}
+	
 
 	// ---------------- Create a project ------------- //
 	@RequestMapping(value = "/project/", method = RequestMethod.POST)

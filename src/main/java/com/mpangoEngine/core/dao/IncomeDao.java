@@ -25,7 +25,7 @@ public interface IncomeDao{
 
 	// Expense findByName(String name);
 
-	void save(Income income);
+	int save(Income income);
 	
 	void updateIncome(Income income);
 

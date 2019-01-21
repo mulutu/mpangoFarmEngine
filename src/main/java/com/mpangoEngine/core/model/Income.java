@@ -11,6 +11,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mpangoEngine.core.util.JsonDateDeserializer;
+import com.mpangoEngine.core.util.JsonDateSerializer;
+
 @Entity
 @Table(name = "income")
 public class Income {
@@ -64,8 +69,7 @@ public class Income {
 		//id = 0;
 	}
 
-	public Income(BigDecimal amount, int customerId, int paymentMethodId, int accountId, int projectId,
-			String notes, int userId) {
+	public Income(BigDecimal amount, int customerId, int paymentMethodId, int accountId, int projectId, String notes, int userId) {
 		IncomeDate = new Date();
 		Amount = amount;
 		CustomerId = customerId;
@@ -75,6 +79,18 @@ public class Income {
 		Notes = notes;
 		UserId = userId;
 	}
+	
+	public Income(Date incomeDate, BigDecimal amount, int customerId, int paymentMethodId, int accountId, int projectId, String notes, int userId) {
+		IncomeDate = incomeDate;
+		Amount = amount;
+		CustomerId = customerId;
+		PaymentMethodId = paymentMethodId;
+		AccountId = accountId;
+		ProjectId = projectId;
+		Notes = notes;
+		UserId = userId;
+	}
+
 
 	public String getCustomer() {
 		return Customer;
@@ -124,10 +140,12 @@ public class Income {
 		UserId = userId;
 	}
 
+	@JsonSerialize(using = JsonDateSerializer.class)
 	public Date getIncomeDate() {
 		return IncomeDate;
 	}
 
+	@JsonDeserialize(using = JsonDateDeserializer.class, as = Date.class)
 	public void setIncomeDate(Date incomeDate) {
 		IncomeDate = incomeDate;
 	}

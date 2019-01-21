@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +35,7 @@ import com.mpangoEngine.core.model.Project;
 import com.mpangoEngine.core.model.ReportObject;
 import com.mpangoEngine.core.model.Supplier;
 import com.mpangoEngine.core.util.CustomErrorType;
+import com.mpangoEngine.core.util.ResponseModel;
 
 @RestController
 @RequestMapping("/api/financials")
@@ -58,18 +60,34 @@ public class FinancialsApiController {
 	@Autowired
 	CustomerDao customerDao;
 
+	// ---------------- Create an Expense --------------//
+	@RequestMapping(value = "/expense", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	public ResponseEntity<ResponseModel> createExpense(@RequestBody Expense expense) {
+		// logger.info("Creating Expense >>>> {}", expense);
+		int rows = expenseDao.save(expense);
+		int status = 1;
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
+		ResponseModel response = new ResponseModel(status, res);
+		return ResponseEntity.ok(response);
+	}
+
 	// ---------------- Create an Income --------------//
-	@RequestMapping(value = "/income/", method = RequestMethod.POST)
+	@RequestMapping(value = "/income", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	public ResponseEntity<?> createIncome(@RequestBody Income income, UriComponentsBuilder ucBuilder) {
 		logger.info("Creating Income >>>> ", income);
-		if (incomeDao.existsById(income.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating income id:  " + income.getId() + "."),
-					HttpStatus.CONFLICT);
+		int rows = incomeDao.save(income);
+		int status = 1;
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
 		}
-		incomeDao.updateIncome(income);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/income/{id}").buildAndExpand(income.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+		ResponseModel response = new ResponseModel(status, res);
+		return ResponseEntity.ok(response);
 	}
 
 	// ---------------- Create a a COA account --------------//
