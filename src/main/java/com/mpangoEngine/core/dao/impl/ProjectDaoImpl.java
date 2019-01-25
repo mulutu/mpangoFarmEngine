@@ -31,6 +31,7 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	
 	@Autowired 
 	public ProjectDaoImpl(DataSource dataSource) {
 	    super();
@@ -75,6 +76,27 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 		for (Map<String, Object> row : rows) {
 
 			Project projectObj = new Project();
+			
+			int projId = (int) row.get("id");
+			
+			List<Income> projIncomes = this.findAllIncomesByProject(projId);
+			List<Expense> projExpenses = this.findAllExpensesByProject(projId);
+			
+			BigDecimal totalIncome =  new BigDecimal(0);
+			for (Income projIncome : projIncomes) {
+				totalIncome = totalIncome.add(projIncome.getAmount());
+			}
+			
+			BigDecimal totalExpense =  new BigDecimal(0);
+			for (Expense projExpense : projExpenses) {
+				totalExpense = totalExpense.add(projExpense.getAmount());
+			}
+			
+			projectObj.setTotalExpeses(totalExpense);
+			projectObj.setTotalIncomes(totalIncome);
+			
+			projectObj.setExpenses(projExpenses);
+			projectObj.setIncomes(projIncomes);
 
 			projectObj.setId((int) row.get("id"));
 			projectObj.setUserId((int) row.get("user_id"));

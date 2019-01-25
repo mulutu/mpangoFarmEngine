@@ -1,6 +1,8 @@
 package com.mpangoEngine.core.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,10 +25,17 @@ public class Project {
 	@Column(name="actual_output") private int actualOutput;	
 	@Column(name="unit_id") private int unitId;	
 	@Transient private String unitDescription;
+	
+	@Transient private List<Expense>  expenses;
+	@Transient private List<Income>  incomes;
+	
+	@Transient private BigDecimal totalExpeses;
+	@Transient private BigDecimal totalIncomes;
+	
 	private String Description;
 
 	public Project() {
-		id = 0;
+		//id = 0;
 	}
 
 	public Project(int userId, int farmId, String projectName, String description) {
@@ -38,7 +47,38 @@ public class Project {
 	}
 	
 	
+	
+	public BigDecimal getTotalExpeses() {
+		return totalExpeses;
+	}
 
+	public void setTotalExpeses(BigDecimal totalExpeses) {
+		this.totalExpeses = totalExpeses;
+	}
+
+	public BigDecimal getTotalIncomes() {
+		return totalIncomes;
+	}
+
+	public void setTotalIncomes(BigDecimal totalIncomes) {
+		this.totalIncomes = totalIncomes;
+	}
+
+	public List<Expense> getExpenses() {
+		return expenses;
+	}
+
+	public void setExpenses(List<Expense> expenses) {
+		this.expenses = expenses;
+	}
+
+	public List<Income> getIncomes() {
+		return incomes;
+	}
+
+	public void setIncomes(List<Income> incomes) {
+		this.incomes = incomes;
+	}
 
 	public String getUnitDescription() {
 		return unitDescription;
