@@ -308,36 +308,7 @@ public class RestApiController {
 		return new ResponseEntity<List<Income>>(incomes, HttpStatus.OK);
 	}
 
-	// -------------------Retrieve Single income
-	@RequestMapping(value = "/income/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
-		logger.info("Fetching Income with id {}", id);
-		Income income = incomeDao.findById(id);
-
-		if (income == null) {
-			logger.error("Income with id {} not found.", id);
-			return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"), HttpStatus.NOT_FOUND);
-		}
-
-		return new ResponseEntity<Income>(income, HttpStatus.OK);
-	}
-
-	// -------------------Retrieve Single expense
-	@RequestMapping(value = "/expense/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> getExpense(@PathVariable("id") int id) {
-		logger.info("Fetching Expense with id {}", id);
-		Expense expense = expenseDao.findById(id);
-
-		if (expense == null) {
-			logger.error("Expense with id {} not found.", id);
-			return new ResponseEntity(new CustomErrorType("Expense with id " + id + " not found"),
-					HttpStatus.NOT_FOUND);
-		}
-
-		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
-	}
+	
 
 	
 

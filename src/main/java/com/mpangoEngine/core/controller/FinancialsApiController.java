@@ -1,5 +1,6 @@
 package com.mpangoEngine.core.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,6 +36,7 @@ import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.Project;
 import com.mpangoEngine.core.model.ReportObject;
 import com.mpangoEngine.core.model.Supplier;
+import com.mpangoEngine.core.model.Transaction;
 import com.mpangoEngine.core.util.CustomErrorType;
 import com.mpangoEngine.core.util.ResponseModel;
 
@@ -59,6 +62,37 @@ public class FinancialsApiController {
 	private SupplierDao supplierDao;
 	@Autowired
 	CustomerDao customerDao;
+
+	// -------------------Retrieve Single income
+	@RequestMapping(value = "/income/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
+		logger.info("Fetching Income with id {}", id);
+		Income income = incomeDao.findById(id);
+
+		if (income == null) {
+			logger.error("Income with id {} not found.", id);
+			return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"), HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<Income>(income, HttpStatus.OK);
+	}
+
+	// -------------------Retrieve Single expense
+	@RequestMapping(value = "/expense/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> getExpense(@PathVariable("id") int id) {
+		logger.info("Fetching Expense with id {}", id);
+		Expense expense = expenseDao.findById(id);
+
+		if (expense == null) {
+			logger.error("Expense with id {} not found.", id);
+			return new ResponseEntity(new CustomErrorType("Expense with id " + id + " not found"),
+					HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
+	}
 
 	// ---------------- Create an Expense --------------//
 	@RequestMapping(value = "/expense", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
@@ -186,6 +220,54 @@ public class FinancialsApiController {
 			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
 		}
 		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
+	}
+
+	/*--------------------------------------------------------------------------------- 
+	 * @@@@@@ @listAllIncomes()
+	 * 	  -- Return : ResponseEntity<List<Transaction>> 
+	 *    -- Retrieve All transactions for a user 
+	 * --------------------------------------------------------------------------------*/
+	@RequestMapping(value = "/transactions/user/{userid}", method = RequestMethod.GET)
+	public ResponseEntity<List<Transaction>> userTransactions(@PathVariable("userid") int userid) {
+
+		List<Transaction> transactionsArray = new ArrayList<>();
+
+		logger.info("Fetching Expenses for  userid {}", userid);
+		List<Income> incomes = incomeDao.findAllIncomesByUserId(userid);
+
+		logger.info("Fetching Expenses for  userid {}", userid);
+		List<Expense> expenses = expenseDao.findAllExpensesByUserId(userid);
+
+		if (!incomes.isEmpty()) {
+			for (Income income : incomes) {
+				Transaction trx = new Transaction();
+
+				String trxDesc = income.getProjectName() + " | " + income.getNotes() + " | " + income.getAccount();
+
+				trx.setTransactionAmount(income.getAmount());
+				trx.setTransactionDate(income.getIncomeDate());
+				trx.setTransactionDescription(trxDesc);
+				trx.setTransactionID(income.getId());
+				trx.setTransactionType("INCOME");
+				transactionsArray.add(trx);
+			}
+		}
+
+		if (!expenses.isEmpty()) {
+			for (Expense expense : expenses) {
+				Transaction trx = new Transaction();
+
+				String trxDesc = expense.getProjectName() + " | " + expense.getNotes() + " | " + expense.getAccount();
+
+				trx.setTransactionAmount(expense.getAmount());
+				trx.setTransactionDate(expense.getExpenseDate());
+				trx.setTransactionDescription(trxDesc);
+				trx.setTransactionID(expense.getId());
+				trx.setTransactionType("EXPENSE");
+				transactionsArray.add(trx);
+			}
+		}
+		return new ResponseEntity<List<Transaction>>(transactionsArray, HttpStatus.OK);
 	}
 
 	/* -------------Retrieve All expenses for a user ------------- */
