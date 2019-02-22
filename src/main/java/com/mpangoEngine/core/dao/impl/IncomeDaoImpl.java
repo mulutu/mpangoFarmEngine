@@ -173,7 +173,7 @@ public class IncomeDaoImpl extends JdbcDaoSupport implements IncomeDao {
 	}
 	
 	@Override
-	public void updateIncome(Income income) {
+	public int updateIncome(Income income) {
 		String sql = " UPDATE income "
 				+ " SET account_id=?, amount=?, income_date=?, notes=?, payment_method_id=?, customer_id=?, user_id=?, project_id=? "
 				+ " WHERE id=?";
@@ -187,7 +187,8 @@ public class IncomeDaoImpl extends JdbcDaoSupport implements IncomeDao {
 		
 		Object[] params = {income.getAccountId(), income.getAmount(), income.getIncomeDate(), income.getNotes(), income.getPaymentMethodId(), income.getCustomerId(), income.getUserId(), income.getProjectId(), income.getId() };
 		int[] types = {Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER}; 
-		int rows = getJdbcTemplate().update(sql, params, types);
+
+		return getJdbcTemplate().update(sql, params, types);
 		
 		//this.getJdbcTemplate().update(sql,
 			//	new Object[] { income.getAccountId(), income.getAmount(), income.getIncomeDate(),

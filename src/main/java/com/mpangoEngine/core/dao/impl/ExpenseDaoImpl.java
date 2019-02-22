@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.mpangoEngine.core.dao.ExpenseDao;
 import com.mpangoEngine.core.model.Expense;
+import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.ReportObject;
 
 @Component
@@ -132,6 +133,30 @@ public class ExpenseDaoImpl extends JdbcDaoSupport implements ExpenseDao {
 
 		return getJdbcTemplate().update( sql, params, types );	
 
+	}
+	
+	@Override
+	public int updateExpense(Expense expense) {
+		String sql = " UPDATE expense "
+				+ " SET account_id=?, amount=?, expense_date=?, notes=?, payment_method_id=?, supplier_id=?, user_id=?, project_id=? "
+				+ " WHERE id=?";
+
+		logger.debug("ExpenseDaoImpl->updateExpense() >>> Query {} ", sql);
+		logger.debug("ExpenseDaoImpl->updateExpense() >>> income.getId() {} ", expense.getId());
+
+		//Object[] params = { name, id};		  
+		//int[] types = {Types.INT, Types.DECIMAL(19,2), Types.INT, Types.DATETIME, Types.VARCHAR, Types.INT, Types.INT, Types.INT};    Types.VARCHAR, Types.BIGINT};
+		//int rows = template.update(updateSql, params, types);
+		
+		Object[] params = {expense.getAccountId(), expense.getAmount(), expense.getExpenseDate(), expense.getNotes(), expense.getPaymentMethodId(), expense.getSupplierId(), expense.getUserId(), expense.getProjectId(), expense.getId() };
+		int[] types = {Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER}; 
+
+		return getJdbcTemplate().update(sql, params, types);
+		
+		//this.getJdbcTemplate().update(sql,
+			//	new Object[] { income.getAccountId(), income.getAmount(), income.getIncomeDate(),
+				//		income.getNotes(), income.getPaymentMethodId(), income.getCustomerId(), income.getUserId(),
+				//		income.getProjectId(), income.getId() });		
 	}
 
 	@Override

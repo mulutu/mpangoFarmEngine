@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mpangoEngine.core.util.JsonDateDeserializer;
 import com.mpangoEngine.core.util.JsonDateSerializer;
 
-public class Transaction {
+public class Transaction  {
 	
 	private int transactionID;
     private BigDecimal transactionAmount;
@@ -60,6 +60,4 @@ public class Transaction {
 		this.transactionType = transactionType;
 	}
     
-    
-
 }

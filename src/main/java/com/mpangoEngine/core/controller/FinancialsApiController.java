@@ -1,6 +1,8 @@
 package com.mpangoEngine.core.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,57 @@ public class FinancialsApiController {
 	private SupplierDao supplierDao;
 	@Autowired
 	CustomerDao customerDao;
+	
+	
+	/*
+	 * ----------------------------------------------- 
+	 * - Update a single income
+	 * ----------------------------------------------
+	 */
+	@RequestMapping(value = "/expense", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateExpense(@RequestBody Expense expense) {
+
+		logger.info("Update an Expense >>>> {}", expense);
+		int rows = expenseDao.updateExpense(expense);
+
+		int status = 1;
+
+		String res = "FAILED";
+
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
+
+		ResponseModel response = new ResponseModel(status, res);
+
+		return ResponseEntity.ok(response);
+	}
+
+	/*
+	 * ----------------------------------------------- 
+	 * - Update a single income
+	 * ----------------------------------------------
+	 */
+	@RequestMapping(value = "/income", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateIncome(@RequestBody Income income) {
+
+		logger.info("Update an Income >>>> {}", income);
+		int rows = incomeDao.updateIncome(income);
+
+		int status = 1;
+
+		String res = "FAILED";
+
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
+
+		ResponseModel response = new ResponseModel(status, res);
+
+		return ResponseEntity.ok(response);
+	}
 
 	// -------------------Retrieve Single income
 	@RequestMapping(value = "/income/{id}", method = RequestMethod.GET)
@@ -267,6 +320,16 @@ public class FinancialsApiController {
 				transactionsArray.add(trx);
 			}
 		}
+
+		Collections.sort(transactionsArray, new Comparator<Transaction>() {
+			@Override
+			public int compare(Transaction o1, Transaction o2) {
+				if (o1.getTransactionDate() == null || o2.getTransactionDate() == null)
+					return 0;
+				return o1.getTransactionDate().compareTo(o2.getTransactionDate());
+			}
+		});
+
 		return new ResponseEntity<List<Transaction>>(transactionsArray, HttpStatus.OK);
 	}
 

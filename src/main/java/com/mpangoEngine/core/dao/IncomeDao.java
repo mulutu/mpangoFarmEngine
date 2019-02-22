@@ -27,7 +27,7 @@ public interface IncomeDao{
 
 	int save(Income income);
 	
-	void updateIncome(Income income);
+	int updateIncome(Income income);
 
 	// void updateExpense(Expense expense);
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mpangoEngine.core.model.Expense;
+import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.ReportObject;
 
 @Transactional
@@ -23,6 +24,8 @@ public interface ExpenseDao {
 	// Expense findByName(String name);
 
 	int save(Expense expense);
+	
+	int updateExpense(Expense expense);
 
 	// void updateExpense(Expense expense);
 
