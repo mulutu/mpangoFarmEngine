@@ -62,9 +62,43 @@ public class ExpenseDaoImpl extends JdbcDaoSupport implements ExpenseDao {
 
 	@Override
 	public Expense findById(int id) {
-		String query = "SELECT * FROM expense WHERE id = ?";
-		Expense expense = (Expense) jdbcTemplate.queryForObject(query, new Object[] { id }, new BeanPropertyRowMapper(Expense.class));
-		return expense;
+		//String query = "SELECT * FROM expense WHERE id = ?";
+		//Expense expense = (Expense) jdbcTemplate.queryForObject(query, new Object[] { id }, new BeanPropertyRowMapper(Expense.class));		
+		
+		String Query = "SELECT e.id, e.account_id,e.amount, e.project_id, e.expense_date, e.notes, e.payment_method_id, e.supplier_id, e.user_id, "
+				+ "p.project_name, f.farm_name, pm.payment_method, coa.account_name, c.Supplier_Names "
+				+ "FROM expense e, user u, project p, farm f, payment_method pm, chart_of_accounts coa, suppliers c "
+				+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and e.payment_method_id = pm.id and coa.id = e.account_id and c.id = e.supplier_id and e.id = "
+				+ id;
+
+		logger.debug("ExpenseDaoImpl->findById() >>> Query {} ", Query);
+		
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(Query);
+		
+		Expense expenseObj = new Expense();
+		
+		for (Map<String, Object> row : rows) {
+			
+			expenseObj.setId((int) row.get("id"));
+			expenseObj.setAccountId((int) row.get("account_id"));
+			expenseObj.setAmount((BigDecimal) row.get("amount"));
+			expenseObj.setProjectId((int) row.get("project_id"));
+			expenseObj.setExpenseDate((Date) row.get("expense_date"));
+			expenseObj.setNotes((String) row.get("notes"));
+			expenseObj.setPaymentMethodId((int) row.get("payment_method_id"));
+			expenseObj.setSupplierId((int) row.get("supplier_id"));
+			expenseObj.setUserId((int) row.get("user_id"));
+
+			expenseObj.setProjectName((String) row.get("project_name"));
+			expenseObj.setFarmName((String) row.get("farm_name"));
+			expenseObj.setPaymentMethod((String) row.get("payment_method"));
+			expenseObj.setAccount((String) row.get("account_name"));
+			expenseObj.setSupplier((String) row.get("Supplier_Names"));
+
+			//incomes.add(incomeObj);
+		}
+
+		return expenseObj;
 	}
 
 	@Override
