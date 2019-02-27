@@ -12,6 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mpangoEngine.core.util.JsonDateDeserializer;
+import com.mpangoEngine.core.util.JsonDateSerializer;
+
 @Entity
 @Table(name = "project")
 public class Project {
@@ -144,10 +149,12 @@ public class Project {
 		ProjectName = projectName;
 	}
 
+	@JsonSerialize(using = JsonDateSerializer.class)
 	public Date getDateCreated() {
 		return DateCreated;
 	}
 
+	@JsonDeserialize(using = JsonDateDeserializer.class, as = Date.class)
 	public void setDateCreated(Date dateCreated) {
 		DateCreated = dateCreated;
 	}

@@ -22,7 +22,7 @@ public interface ProjectDao {
 	
 	boolean existsById(int id);
 	
-	void save(Project project);
+	int save(Project project);
 	
 	List<Income> findAllIncomesByProject(int projid);
 	

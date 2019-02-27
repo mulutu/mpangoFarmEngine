@@ -310,22 +310,6 @@ public class RestApiController {
 
 	
 
-	
-
-	// ---------------- Create a project ------------- //
-	@RequestMapping(value = "/project/", method = RequestMethod.POST)
-	public ResponseEntity<?> createProject(@RequestBody Project project, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating Project >>>>> ", project);
-		if (projectDao.existsById(project.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating project  " + project.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		projectDao.save(project);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/project/{id}").buildAndExpand(project.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-	}
-
 	// ---------------- Create a supplier ------------- //
 	@RequestMapping(value = "/supplier/", method = RequestMethod.POST)
 	public ResponseEntity<?> createSupplier(@RequestBody Supplier supplier, UriComponentsBuilder ucBuilder) {

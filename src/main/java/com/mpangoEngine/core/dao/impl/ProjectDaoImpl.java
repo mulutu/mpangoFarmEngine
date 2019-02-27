@@ -1,6 +1,7 @@
 package com.mpangoEngine.core.dao.impl;
 
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -122,15 +123,27 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 	}
 
 	@Override
-	public void save(Project project) {
-		String sql = "INSERT INTO income "
+	public int save(Project project) {
+		String sql = "INSERT INTO project "
 				+ "(`id`, `date_created`, `description`, `project_name`, `user_id`, `farm_id`, `actual_output`, `expected_output`, `unit_id`) "
 				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";
+		
+		
+		logger.debug("ProjectDaoImpl->save() >>> getId {} ", project.getId());
+		logger.debug("ProjectDaoImpl->save() >>> getDateCreated {} ", project.getDateCreated());
+		logger.debug("ProjectDaoImpl->save() >>> getDescription {} ", project.getDescription());
+		logger.debug("ProjectDaoImpl->save() >>> getProjectName {} ", project.getProjectName());
+		logger.debug("ProjectDaoImpl->save() >>> getUserId {} ", project.getUserId());
+		logger.debug("ProjectDaoImpl->save() >>> getFarmId {} ", project.getFarmId());
+		logger.debug("ProjectDaoImpl->save() >>> getActualOutput {} ", project.getActualOutput());
+		logger.debug("ProjectDaoImpl->save() >>> getExpectedOutput {} ", project.getExpectedOutput());
+		logger.debug("ProjectDaoImpl->save() >>> getUnitId {} ", project.getUnitId() );
+		
+		Object[] params = { project.getId(), new Date(), project.getDescription(), project.getProjectName(),
+				project.getUserId(), project.getFarmId(), project.getActualOutput(), project.getExpectedOutput(), 1 };
+		int[] types = {Types.INTEGER, Types.DATE, Types.VARCHAR, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER };
 
-		getJdbcTemplate().update(sql,
-				new Object[] { project.getId(), project.getDateCreated(), project.getDescription(), project.getProjectName(),
-						project.getUserId(), project.getFarmId(), project.getActualOutput(), project.getExpectedOutput(),
-						project.getUnitId() });	
+		return getJdbcTemplate().update( sql, params, types );	
 	}
 
 	@Override

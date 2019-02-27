@@ -66,11 +66,24 @@ public class FinancialsApiController {
 	CustomerDao customerDao;
 	
 	
-	/*
-	 * ----------------------------------------------- 
-	 * - Update a single income
-	 * ----------------------------------------------
-	 */
+
+	// ---------------- Create a project ------------- //
+	@RequestMapping(value = "/project/", method = RequestMethod.POST)
+	public ResponseEntity<?> createProject(@RequestBody Project project) {
+		
+		logger.info("Creating Project >>>>> ", project);
+		int rows = projectDao.save(project);
+	
+		int status = 1;
+		String res = "FAILED";		
+		if (rows > 0) { res = "CREATED"; status = 0; }
+		
+		ResponseModel response = new ResponseModel(status, res);
+
+		return ResponseEntity.ok(response);
+	}
+
+	// --------------- Update a single income --------- //
 	@RequestMapping(value = "/expense", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateExpense(@RequestBody Expense expense) {
 
@@ -78,24 +91,15 @@ public class FinancialsApiController {
 		int rows = expenseDao.updateExpense(expense);
 
 		int status = 1;
-
-		String res = "FAILED";
-
-		if (rows > 0) {
-			res = "CREATED";
-			status = 0;
-		}
+		String res = "FAILED";		
+		if (rows > 0) { res = "CREATED"; status = 0; }
 
 		ResponseModel response = new ResponseModel(status, res);
 
 		return ResponseEntity.ok(response);
 	}
 
-	/*
-	 * ----------------------------------------------- 
-	 * - Update a single income
-	 * ----------------------------------------------
-	 */
+	// ---------------- Update a single income ------------ //
 	@RequestMapping(value = "/income", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateIncome(@RequestBody Income income) {
 
@@ -103,13 +107,8 @@ public class FinancialsApiController {
 		int rows = incomeDao.updateIncome(income);
 
 		int status = 1;
-
-		String res = "FAILED";
-
-		if (rows > 0) {
-			res = "CREATED";
-			status = 0;
-		}
+		String res = "FAILED";		
+		if (rows > 0) { res = "CREATED"; status = 0; }
 
 		ResponseModel response = new ResponseModel(status, res);
 
