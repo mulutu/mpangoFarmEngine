@@ -210,19 +210,7 @@ public class RestApiController {
 		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
 	}
 
-	// ---------------- Create a farm --------------//
-	@RequestMapping(value = "/farm/", method = RequestMethod.POST)
-	public ResponseEntity<?> createFarm(@RequestBody Farm farm, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating farm >>>> ", farm);
-		if (expenseDao.existsById(farm.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating farm id:  " + farm.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		farmDao.save(farm);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/farm/{id}").buildAndExpand(farm.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-	}
+	
 
 	/* -----------retrieve all expenses ----------- */
 	@RequestMapping(value = "/expense/", method = RequestMethod.GET)

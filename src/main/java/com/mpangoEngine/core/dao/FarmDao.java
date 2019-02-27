@@ -11,7 +11,7 @@ import com.mpangoEngine.core.model.Farm;
 @Repository
 public interface FarmDao {
 	
-	void save(Farm farm);
+	int save(Farm farm);
 	
 	Farm findFarmById(int id);
 	

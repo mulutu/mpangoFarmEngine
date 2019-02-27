@@ -64,20 +64,40 @@ public class FinancialsApiController {
 	private SupplierDao supplierDao;
 	@Autowired
 	CustomerDao customerDao;
-	
-	
+
+	// ---------------- Create a farm --------------//
+	@RequestMapping(value = "/farm/create/", method = RequestMethod.POST)
+	public ResponseEntity<?> createFarm(@RequestBody Farm farm) {
+		
+		logger.info("Creating farm >>>> ", farm);	
+		int rows = farmDao.save(farm);
+		
+		int status = 1;
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
+
+		ResponseModel response = new ResponseModel(status, res);
+
+		return ResponseEntity.ok(response);
+	}
 
 	// ---------------- Create a project ------------- //
-	@RequestMapping(value = "/project/", method = RequestMethod.POST)
+	@RequestMapping(value = "/project/create/", method = RequestMethod.POST)
 	public ResponseEntity<?> createProject(@RequestBody Project project) {
-		
+
 		logger.info("Creating Project >>>>> ", project);
 		int rows = projectDao.save(project);
-	
+
 		int status = 1;
-		String res = "FAILED";		
-		if (rows > 0) { res = "CREATED"; status = 0; }
-		
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
+
 		ResponseModel response = new ResponseModel(status, res);
 
 		return ResponseEntity.ok(response);
@@ -91,8 +111,11 @@ public class FinancialsApiController {
 		int rows = expenseDao.updateExpense(expense);
 
 		int status = 1;
-		String res = "FAILED";		
-		if (rows > 0) { res = "CREATED"; status = 0; }
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
 
 		ResponseModel response = new ResponseModel(status, res);
 
@@ -107,8 +130,11 @@ public class FinancialsApiController {
 		int rows = incomeDao.updateIncome(income);
 
 		int status = 1;
-		String res = "FAILED";		
-		if (rows > 0) { res = "CREATED"; status = 0; }
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
+		}
 
 		ResponseModel response = new ResponseModel(status, res);
 
