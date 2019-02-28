@@ -16,13 +16,10 @@ public class Transaction {
 	private int id;
 	private int accountId;
 	private BigDecimal amount;
-	private int customerSupplierId;
 	private Date transactionDate;
 	private int transactionTypeId;
 	private String transactionType;
 	private String description;
-	private int paymentMethodId;
-	private String paymentMethod;
 	private int projectId;
 	private String projectName;
 	private int userId;	
@@ -68,25 +65,9 @@ public class Transaction {
 		this.transactionType = transactionType;
 	}
 
-
-
-	public String getPaymentMethod() {
-		return paymentMethod;
-	}
-
-
-
-	public void setPaymentMethod(String paymentMethod) {
-		this.paymentMethod = paymentMethod;
-	}
-
-
-
 	public String getProjectName() {
 		return projectName;
 	}
-
-
 
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
@@ -118,14 +99,6 @@ public class Transaction {
 		this.amount = amount;
 	}
 
-	public int getCustomerSupplierId() {
-		return customerSupplierId;
-	}
-
-	public void setCustomerSupplierId(int customerSupplierId) {
-		this.customerSupplierId = customerSupplierId;
-	}
-
 	@JsonSerialize(using = JsonDateSerializer.class)
 	public Date getTransactionDate() {
 		return transactionDate;
@@ -150,14 +123,6 @@ public class Transaction {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public int getPaymentMethodId() {
-		return paymentMethodId;
-	}
-
-	public void setPaymentMethodId(int paymentMethodId) {
-		this.paymentMethodId = paymentMethodId;
 	}
 
 	public int getProjectId() {
@@ -204,11 +169,9 @@ public class Transaction {
 								+ "id=" + id + ", " 
 								+ "accountId=" + accountId + ", " 
 								+ "amount=" + amount + ", "
-								+ "customerSupplierId=" + customerSupplierId + ", "
 								+ "transactionDate=" + transactionDate + ", " 
 								+ "transactionTypeId=" + transactionTypeId + ", "
 								+ "description=" + description + ", "
-								+ "paymentMethodId=" + paymentMethodId + ", " 
 								+ "projectId=" + projectId + ", " 
 								+ "userId=" + userId 
 							+ "]";

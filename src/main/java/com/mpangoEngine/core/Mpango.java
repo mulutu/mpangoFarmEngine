@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration 
 @ComponentScan({"com.mpangoEngine"})
 @SpringBootApplication
-public class MpangoFarmEngineApplication {
+public class Mpango {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MpangoFarmEngineApplication.class, args);
+		SpringApplication.run(Mpango.class, args);
 	}
 }

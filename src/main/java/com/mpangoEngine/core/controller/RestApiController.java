@@ -61,6 +61,29 @@ public class RestApiController {
 	@Autowired
 	private TransactionDao transactionDao;
 	
+	
+	/*
+	 * TRANSACTIONS
+	 */
+	@RequestMapping(value = "/transactions", method = RequestMethod.GET)
+	public ResponseEntity<List<Transaction>> listAllTransactions() {
+		List<Transaction> projects = transactionDao.findAll();
+		return new ResponseEntity<List<Transaction>>(projects, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/transactions/{transactionID}", method = RequestMethod.GET)
+	public ResponseEntity<Transaction> getTransaction(@PathVariable("transactionID") int transactionID) {
+		logger.info("Get transaction >>>>> ", transactionID);
+		Transaction transaction = transactionDao.findTransactionById(transactionID);
+		return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/transactions", method = RequestMethod.POST)
+	public ResponseEntity<?> createTransaction(@RequestBody Transaction transaction) {
+		logger.info("Creating transaction >>>>> ", transaction);
+		int rows = transactionDao.saveTransaction(transaction);
+		return ResponseEntity.ok(response(rows));
+	}
 
 	/*
 	 * FARMS 
