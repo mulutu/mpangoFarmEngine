@@ -31,8 +31,7 @@ public class Project {
 	@Column(name="unit_id") private int unitId;	
 	@Transient private String unitDescription;
 	
-	@Transient private List<Expense>  expenses;
-	@Transient private List<Income>  incomes;
+	@Transient private List<Transaction>  transactions;
 	
 	@Transient private BigDecimal totalExpeses;
 	@Transient private BigDecimal totalIncomes;
@@ -53,6 +52,14 @@ public class Project {
 	
 	
 	
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
+	}
+
 	public BigDecimal getTotalExpeses() {
 		return totalExpeses;
 	}
@@ -67,22 +74,6 @@ public class Project {
 
 	public void setTotalIncomes(BigDecimal totalIncomes) {
 		this.totalIncomes = totalIncomes;
-	}
-
-	public List<Expense> getExpenses() {
-		return expenses;
-	}
-
-	public void setExpenses(List<Expense> expenses) {
-		this.expenses = expenses;
-	}
-
-	public List<Income> getIncomes() {
-		return incomes;
-	}
-
-	public void setIncomes(List<Income> incomes) {
-		this.incomes = incomes;
 	}
 
 	public String getUnitDescription() {

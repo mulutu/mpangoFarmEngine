@@ -30,20 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.mpangoEngine.core.dao.ChartOfAccountsDao;
-import com.mpangoEngine.core.dao.CustomerDao;
-import com.mpangoEngine.core.dao.ExpenseDao;
 import com.mpangoEngine.core.dao.FarmDao;
-import com.mpangoEngine.core.dao.IncomeDao;
-import com.mpangoEngine.core.dao.PaymentMethodDao;
 import com.mpangoEngine.core.dao.ProjectDao;
-import com.mpangoEngine.core.dao.SupplierDao;
 import com.mpangoEngine.core.dao.TransactionDao;
 import com.mpangoEngine.core.model.COAAccountType;
 import com.mpangoEngine.core.model.ChartOfAccounts;
 import com.mpangoEngine.core.model.Customer;
-import com.mpangoEngine.core.model.Expense;
 import com.mpangoEngine.core.model.Farm;
-import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.MyUser;
 import com.mpangoEngine.core.model.Project;
 import com.mpangoEngine.core.model.ReportObject;
@@ -65,95 +58,19 @@ public class RestApiController {
 	@Autowired
 	private TransactionDao transactionDao;
 	@Autowired
-	private ExpenseDao expenseDao;
-	@Autowired
-	private IncomeDao incomeDao;
-	@Autowired
 	private ProjectDao projectDao;
 	@Autowired
 	private FarmDao farmDao;
 	@Autowired
-	private PaymentMethodDao paymentMethodDao;
-	@Autowired
 	private ChartOfAccountsDao chartOfAccountsDao;
 	@Autowired
-	private SupplierDao supplierDao;
-	@Autowired
-	CustomerDao customerDao;	
-	@Autowired
 	private UserService userService;
-	@Autowired
-	private SecurityService securityService;
 	@Autowired
 	private UserValidator userValidator;
 	@Autowired
 	private EmailService emailService;
 
-	/*
-	 * EXPENSES
-	 */
-	@RequestMapping(value = "/expenses", method = RequestMethod.GET)
-	public ResponseEntity<List<Expense>> listAllExpenses() {
-		List<Expense> expenses = expenseDao.findAll();
-		if (expenses.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
-	}
 	
-	@RequestMapping(value = "/expenses", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateExpense(@RequestBody Expense expense) {
-		logger.info("Update an Expense >>>> {}", expense);
-		int rows = expenseDao.updateExpense(expense);
-		return ResponseEntity.ok(response(rows));
-	}
-	
-	@RequestMapping(value = "/expenses/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> getExpense(@PathVariable("id") int id) {
-		logger.info("Fetching Expense with id {}", id);
-		Expense expense = expenseDao.findById(id);
-		if (expense == null) {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/expenses", method = RequestMethod.POST)
-	public ResponseEntity<ResponseModel> createExpense(@RequestBody Expense expense) {
-		logger.info("Creating Expense >>>> {}", expense);
-		int rows = expenseDao.save(expense);
-		return ResponseEntity.ok(response(rows));
-	}
-
-	/*
-	 * INCOMES
-	 */
-	@RequestMapping(value = "/incomes", method = RequestMethod.POST)
-	public ResponseEntity<?> createIncome(@RequestBody Income income) {
-		logger.info("Creating Income >>>> ", income);
-		int rows = incomeDao.save(income);
-		return ResponseEntity.ok(response(rows));
-	}
-	
-	@RequestMapping(value = "/incomes", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateIncome(@RequestBody Income income) {
-		logger.info("Update an Income >>>> {}", income);
-		int rows = incomeDao.updateIncome(income);
-		return ResponseEntity.ok(response(rows));
-	}
-	
-	@RequestMapping(value = "/incomes/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
-		logger.info("Fetching Income with id {}", id);
-		Income income = incomeDao.findById(id);
-		if (income == null) {
-			return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"), HttpStatus.NOT_FOUND);
-		}
-
-		return new ResponseEntity<Income>(income, HttpStatus.OK);
-	}
 
 	/*
 	 * FARMS 
@@ -199,25 +116,6 @@ public class RestApiController {
 		return new ResponseEntity<List<Map<String, Object>>>(projDetails, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/projects/{projid}/expenses", method = RequestMethod.GET)
-	public ResponseEntity<List<Expense>> listAllExpensesByProject(@PathVariable("projid") int projid) {
-		logger.info("FinancialsApiController -> listAllExpensesByProject()  projid {}", projid);
-		List<Expense> projExpenses = projectDao.findAllExpensesByProject(projid);
-		if (projExpenses.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}
-		return new ResponseEntity<List<Expense>>(projExpenses, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/projects/{projid}/incomes", method = RequestMethod.GET)
-	public ResponseEntity<List<Income>> listAllIncomesByProject(@PathVariable("projid") int projid) {
-		logger.info("FinancialsApiController -> listAllIncomesByProject()  projid {}", projid);
-		List<Income> projIncomes = projectDao.findAllIncomesByProject(projid);
-		if (projIncomes.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Income>>(projIncomes, HttpStatus.OK);
-	}
 
 	/*
 	 * COA 
@@ -238,8 +136,7 @@ public class RestApiController {
 	public ResponseEntity<?> createCOA(@RequestBody ChartOfAccounts coa, UriComponentsBuilder ucBuilder) {
 		logger.info("FinancialsApiController->createCOA() :: >>>> ", coa);
 		if (chartOfAccountsDao.existsById(coa.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating farm id:  " + coa.getId() + "."),
-					HttpStatus.CONFLICT);
+			return new ResponseEntity(HttpStatus.CONFLICT);
 		}
 		chartOfAccountsDao.save(coa);
 		HttpHeaders headers = new HttpHeaders();
@@ -251,26 +148,6 @@ public class RestApiController {
 	/*
 	 * USERS
 	 */
-	@RequestMapping(value = "/users/{userid}/incomes", method = RequestMethod.GET)
-	public ResponseEntity<List<Income>> listAllIncomes(@PathVariable("userid") int userid) {
-		logger.info("Fetching Expenses for  userid {}", userid);
-		List<Income> incomes = incomeDao.findAllIncomesByUserId(userid);
-		if (incomes.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Income>>(incomes, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/users/{userid}/expenses", method = RequestMethod.GET)
-	public ResponseEntity<List<Expense>> listAllExpenses(@PathVariable("userid") int userid) {
-		logger.info("Fetching Expenses for  userid {}", userid);
-		List<Expense> expenses = expenseDao.findAllExpensesByUserId(userid);
-		if (expenses.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
-	}
-	
 	@RequestMapping(value = "/users/{userid}", method = RequestMethod.GET)
 	public ResponseEntity<List<MyUser>> getUserDetails(@PathVariable("userid") int userid) {
 		List<MyUser> userDetails = userService.getUserDetails(userid);
@@ -296,18 +173,6 @@ public class RestApiController {
 	public ResponseEntity<List<ChartOfAccounts>> getCOAByUser(@PathVariable("userId") int userId) {
 		List<ChartOfAccounts> coa = chartOfAccountsDao.findAllCOAByUser(userId);
 		return new ResponseEntity<List<ChartOfAccounts>>(coa, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/users/{userId}/suppliers", method = RequestMethod.GET)
-	public ResponseEntity<List<Supplier>> getSuppliersByUser(@PathVariable("userId") int userId) {
-		List<Supplier> suppliers = supplierDao.findAllSuppliersByUserId(userId);
-		return new ResponseEntity<List<Supplier>>(suppliers, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/users/{userId}/customers", method = RequestMethod.GET)
-	public ResponseEntity<List<Customer>> getCustomersByUser(@PathVariable("userId") int userId) {
-		List<Customer> customers = customerDao.findAllCustomersByUserId(userId);
-		return new ResponseEntity<List<Customer>>(customers, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/users/{userId}/farms", method = RequestMethod.GET)

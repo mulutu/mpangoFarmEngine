@@ -23,7 +23,7 @@ import com.mpangoEngine.core.model.ChartOfAccounts;
 @Transactional
 public class ChartOfAccountsDaoImpl extends JdbcDaoSupport implements ChartOfAccountsDao {
 	
-	public static final Logger logger = LoggerFactory.getLogger(CustomerDaoImpl.class);
+	public static final Logger logger = LoggerFactory.getLogger(ChartOfAccountsDaoImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
