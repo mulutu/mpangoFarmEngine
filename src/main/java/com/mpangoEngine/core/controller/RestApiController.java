@@ -1,7 +1,11 @@
 package com.mpangoEngine.core.controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,18 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,16 +37,18 @@ import com.mpangoEngine.core.dao.IncomeDao;
 import com.mpangoEngine.core.dao.PaymentMethodDao;
 import com.mpangoEngine.core.dao.ProjectDao;
 import com.mpangoEngine.core.dao.SupplierDao;
+import com.mpangoEngine.core.dao.TransactionDao;
+import com.mpangoEngine.core.model.COAAccountType;
 import com.mpangoEngine.core.model.ChartOfAccounts;
 import com.mpangoEngine.core.model.Customer;
 import com.mpangoEngine.core.model.Expense;
 import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.Income;
 import com.mpangoEngine.core.model.MyUser;
-import com.mpangoEngine.core.model.PaymentMethod;
 import com.mpangoEngine.core.model.Project;
-import com.mpangoEngine.core.model.Role;
+import com.mpangoEngine.core.model.ReportObject;
 import com.mpangoEngine.core.model.Supplier;
+import com.mpangoEngine.core.model.Transaction;
 import com.mpangoEngine.core.service.SecurityService;
 import com.mpangoEngine.core.service.UserService;
 import com.mpangoEngine.core.util.CustomErrorType;
@@ -55,27 +57,29 @@ import com.mpangoEngine.core.util.ResponseModel;
 import com.mpangoEngine.core.validator.UserValidator;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
 
 	@Autowired
-	ExpenseDao expenseDao;
+	private TransactionDao transactionDao;
 	@Autowired
-	IncomeDao incomeDao;
+	private ExpenseDao expenseDao;
 	@Autowired
-	ProjectDao projectDao;
+	private IncomeDao incomeDao;
 	@Autowired
-	FarmDao farmDao;
+	private ProjectDao projectDao;
 	@Autowired
-	PaymentMethodDao paymentMethodDao;
+	private FarmDao farmDao;
 	@Autowired
-	ChartOfAccountsDao chartOfAccountsDao;
+	private PaymentMethodDao paymentMethodDao;
 	@Autowired
-	SupplierDao supplierDao;
+	private ChartOfAccountsDao chartOfAccountsDao;
 	@Autowired
-	private CustomerDao customerDao;
+	private SupplierDao supplierDao;
+	@Autowired
+	CustomerDao customerDao;	
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -85,16 +89,261 @@ public class RestApiController {
 	@Autowired
 	private EmailService emailService;
 
-	@InitBinder
-	public void setupDefaultInitBinder(WebDataBinder binder) {
-		binder.setDisallowedFields("*password");
-		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+	/*
+	 * EXPENSES
+	 */
+	@RequestMapping(value = "/expenses", method = RequestMethod.GET)
+	public ResponseEntity<List<Expense>> listAllExpenses() {
+		List<Expense> expenses = expenseDao.findAll();
+		if (expenses.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/expenses", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateExpense(@RequestBody Expense expense) {
+		logger.info("Update an Expense >>>> {}", expense);
+		int rows = expenseDao.updateExpense(expense);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	@RequestMapping(value = "/expenses/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> getExpense(@PathVariable("id") int id) {
+		logger.info("Fetching Expense with id {}", id);
+		Expense expense = expenseDao.findById(id);
+		if (expense == null) {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Expense>(expense, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/expenses", method = RequestMethod.POST)
+	public ResponseEntity<ResponseModel> createExpense(@RequestBody Expense expense) {
+		logger.info("Creating Expense >>>> {}", expense);
+		int rows = expenseDao.save(expense);
+		return ResponseEntity.ok(response(rows));
 	}
 
 	/*
-	 * Process confirmation link
+	 * INCOMES
 	 */
-	@RequestMapping(value = "/confirmtoken/{token}", method = RequestMethod.GET)
+	@RequestMapping(value = "/incomes", method = RequestMethod.POST)
+	public ResponseEntity<?> createIncome(@RequestBody Income income) {
+		logger.info("Creating Income >>>> ", income);
+		int rows = incomeDao.save(income);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	@RequestMapping(value = "/incomes", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateIncome(@RequestBody Income income) {
+		logger.info("Update an Income >>>> {}", income);
+		int rows = incomeDao.updateIncome(income);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	@RequestMapping(value = "/incomes/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> getIncome(@PathVariable("id") int id) {
+		logger.info("Fetching Income with id {}", id);
+		Income income = incomeDao.findById(id);
+		if (income == null) {
+			return new ResponseEntity(new CustomErrorType("Income with id " + id + " not found"), HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<Income>(income, HttpStatus.OK);
+	}
+
+	/*
+	 * FARMS 
+	 */
+	@RequestMapping(value = "/farms", method = RequestMethod.POST)
+	public ResponseEntity<?> createFarm(@RequestBody Farm farm) {
+		logger.info("Creating farm >>>> ", farm);
+		int rows = farmDao.save(farm);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	@RequestMapping(value = "/farms/{farmid}", method = RequestMethod.GET)
+	public ResponseEntity<Farm> getFarm(@PathVariable("farmid") int farmid) {
+		Farm farm = farmDao.findFarmById(farmid);
+		return new ResponseEntity<Farm>(farm, HttpStatus.OK);
+	}
+
+	/*
+	 * PROJECTS
+	 */
+	@RequestMapping(value = "/projects", method = RequestMethod.GET)
+	public ResponseEntity<List<Project>> listAllProjects() {
+		List<Project> projects = projectDao.findAll();
+		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/projects/{projid}", method = RequestMethod.GET)
+	public ResponseEntity<Project> getProject(@PathVariable("projid") int projid) {
+		Project project = projectDao.findProjectById(projid);
+		return new ResponseEntity<Project>(project, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/projects", method = RequestMethod.POST)
+	public ResponseEntity<?> createProject(@RequestBody Project project) {
+		logger.info("Creating Project >>>>> ", project);
+		int rows = projectDao.save(project);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	@RequestMapping(value = "/projects/{projid}/details", method = RequestMethod.GET)
+	public ResponseEntity<List<Map<String, Object>>> getProjectDetails(@PathVariable("projid") int projid) {
+		List<Map<String, Object>> projDetails = projectDao.findProjectDetails(projid);
+		return new ResponseEntity<List<Map<String, Object>>>(projDetails, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/projects/{projid}/expenses", method = RequestMethod.GET)
+	public ResponseEntity<List<Expense>> listAllExpensesByProject(@PathVariable("projid") int projid) {
+		logger.info("FinancialsApiController -> listAllExpensesByProject()  projid {}", projid);
+		List<Expense> projExpenses = projectDao.findAllExpensesByProject(projid);
+		if (projExpenses.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<List<Expense>>(projExpenses, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/projects/{projid}/incomes", method = RequestMethod.GET)
+	public ResponseEntity<List<Income>> listAllIncomesByProject(@PathVariable("projid") int projid) {
+		logger.info("FinancialsApiController -> listAllIncomesByProject()  projid {}", projid);
+		List<Income> projIncomes = projectDao.findAllIncomesByProject(projid);
+		if (projIncomes.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Income>>(projIncomes, HttpStatus.OK);
+	}
+
+	/*
+	 * COA 
+	 */
+	@RequestMapping(value = "/coa/", method = RequestMethod.GET)
+	public ResponseEntity<List<ChartOfAccounts>> chartOfAccounts() {
+		List<ChartOfAccounts> chartofaccounts = chartOfAccountsDao.findAllCOA();
+		return new ResponseEntity<List<ChartOfAccounts>>(chartofaccounts, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/coa/types", method = RequestMethod.GET)
+	public ResponseEntity<List<COAAccountType>> getCOAAccountTypes() {
+		List<COAAccountType> coa = chartOfAccountsDao.fetchAllAccountTypes();
+		return new ResponseEntity<List<COAAccountType>>(coa, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/coa", method = RequestMethod.POST)
+	public ResponseEntity<?> createCOA(@RequestBody ChartOfAccounts coa, UriComponentsBuilder ucBuilder) {
+		logger.info("FinancialsApiController->createCOA() :: >>>> ", coa);
+		if (chartOfAccountsDao.existsById(coa.getId())) {
+			return new ResponseEntity(new CustomErrorType("Error creating farm id:  " + coa.getId() + "."),
+					HttpStatus.CONFLICT);
+		}
+		chartOfAccountsDao.save(coa);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(ucBuilder.path("/api/coa/{id}").buildAndExpand(coa.getId()).toUri());
+		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+	}
+
+	
+	/*
+	 * USERS
+	 */
+	@RequestMapping(value = "/users/{userid}/incomes", method = RequestMethod.GET)
+	public ResponseEntity<List<Income>> listAllIncomes(@PathVariable("userid") int userid) {
+		logger.info("Fetching Expenses for  userid {}", userid);
+		List<Income> incomes = incomeDao.findAllIncomesByUserId(userid);
+		if (incomes.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Income>>(incomes, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}/expenses", method = RequestMethod.GET)
+	public ResponseEntity<List<Expense>> listAllExpenses(@PathVariable("userid") int userid) {
+		logger.info("Fetching Expenses for  userid {}", userid);
+		List<Expense> expenses = expenseDao.findAllExpensesByUserId(userid);
+		if (expenses.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}", method = RequestMethod.GET)
+	public ResponseEntity<List<MyUser>> getUserDetails(@PathVariable("userid") int userid) {
+		List<MyUser> userDetails = userService.getUserDetails(userid);
+		return new ResponseEntity<List<MyUser>>(userDetails, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
+	public ResponseEntity<List<MyUser>> getAllUsers() {
+		List<MyUser> allUsers = userService.getAllUsers();
+		return new ResponseEntity<List<MyUser>>(allUsers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}/farms", method = RequestMethod.GET)
+	public ResponseEntity<List<Farm>> listAllFarmsByUser(@PathVariable("userid") int userid) {
+		List<Farm> farms = farmDao.findAllFarmsByUserId(userid);
+		if (farms.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/coa", method = RequestMethod.GET)
+	public ResponseEntity<List<ChartOfAccounts>> getCOAByUser(@PathVariable("userId") int userId) {
+		List<ChartOfAccounts> coa = chartOfAccountsDao.findAllCOAByUser(userId);
+		return new ResponseEntity<List<ChartOfAccounts>>(coa, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/suppliers", method = RequestMethod.GET)
+	public ResponseEntity<List<Supplier>> getSuppliersByUser(@PathVariable("userId") int userId) {
+		List<Supplier> suppliers = supplierDao.findAllSuppliersByUserId(userId);
+		return new ResponseEntity<List<Supplier>>(suppliers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/customers", method = RequestMethod.GET)
+	public ResponseEntity<List<Customer>> getCustomersByUser(@PathVariable("userId") int userId) {
+		List<Customer> customers = customerDao.findAllCustomersByUserId(userId);
+		return new ResponseEntity<List<Customer>>(customers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/farms", method = RequestMethod.GET)
+	public ResponseEntity<List<Farm>> getFarmsByUser(@PathVariable("userId") int userId) {
+		List<Farm> farms = farmDao.findAllFarmsByUserId(userId);
+		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}/projects", method = RequestMethod.GET)
+	public ResponseEntity<List<Project>> listAllProjectsByUser(@PathVariable("userid") int userid) {
+		logger.info("Fetching projects for  userid {}", userid);
+		List<Project> projects = projectDao.findAllProjectsByUser(userid);
+		if (projects.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}/transactions", method = RequestMethod.GET)
+	public ResponseEntity<List<Transaction>> userTransactions(@PathVariable("userid") int userid) {
+		logger.info("Fetching Transactions for  userid {}", userid);
+		List<Transaction> transactionsArray = transactionDao.findUserTransactions(userid);
+
+		Collections.sort(transactionsArray, new Comparator<Transaction>() {
+			@Override
+			public int compare(Transaction o1, Transaction o2) {
+				if (o1.getTransactionDate() == null || o2.getTransactionDate() == null)
+					return 0;
+				return o1.getTransactionDate().compareTo(o2.getTransactionDate());
+			}
+		});
+
+		return new ResponseEntity<List<Transaction>>(transactionsArray, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/token/{token}", method = RequestMethod.GET)
 	public ResponseEntity<?> showConfirmationPage(@PathVariable("token") String token) {
 		MyUser user = userService.findByConfirmationToken(token);
 		if (user == null) {
@@ -104,11 +353,8 @@ public class RestApiController {
 		}
 		return new ResponseEntity<String>(user.getConfirmationToken(), HttpStatus.OK);
 	}
-
-	/*
-	 * Login
-	 */
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/users/login", method = RequestMethod.POST)
 	public ResponseEntity<?> login(@RequestBody MyUser user) {
 		String username = user.getUsername();
 		String password = user.getPassword();
@@ -126,8 +372,8 @@ public class RestApiController {
 
 		return ResponseEntity.ok(myUser);
 	}
-
-	@RequestMapping(value = "/register2", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/users/register", method = RequestMethod.POST)
 	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult,
 			HttpServletRequest request, UriComponentsBuilder ucBuilder) {
 
@@ -139,8 +385,7 @@ public class RestApiController {
 		userValidator.validate(user, bindingResult);
 
 		if (bindingResult.hasErrors()) {
-			return new ResponseEntity(new CustomErrorType("Error creating user  " + user.getEmail() + "."),
-					HttpStatus.CONFLICT);
+			return new ResponseEntity(HttpStatus.CONFLICT);
 		}
 
 		// Generate random 36-character string token for confirmation link
@@ -172,210 +417,13 @@ public class RestApiController {
 		return new ResponseEntity<String>(user.getEmail(), HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/user/id/{userid}", method = RequestMethod.GET)
-	public ResponseEntity<List<MyUser>> getUserDetails(@PathVariable("userid") int userid) {
-
-		List<MyUser> userDetails = userService.getUserDetails(userid);
-		return new ResponseEntity<List<MyUser>>(userDetails, HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
-	public ResponseEntity<List<MyUser>> getAllUsers() {
-
-		List<MyUser> allUsers = userService.getAllUsers();
-		return new ResponseEntity<List<MyUser>>(allUsers, HttpStatus.OK);
-	}
-
-	/* -------------Retrieve All farms for a user ------------- */
-	@RequestMapping(value = "/farm/user/{userid}", method = RequestMethod.GET)
-	public ResponseEntity<List<Farm>> listAllFarmsByUser(@PathVariable("userid") int userid) {
-		List<Farm> farms = farmDao.findAllFarmsByUserId(userid);
-		if (farms.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+	private ResponseModel response(int rows) {
+		int status = 1;
+		String res = "FAILED";
+		if (rows > 0) {
+			res = "CREATED";
+			status = 0;
 		}
-		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
+		return new ResponseModel(status, res);
 	}
-
-	// ---------------- Create a Payment Method --------------//
-	@RequestMapping(value = "/paymethod/", method = RequestMethod.POST)
-	public ResponseEntity<?> createPayMethod(@RequestBody PaymentMethod paymentMethod, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating createPayMethod >>>> ", paymentMethod);
-		if (paymentMethodDao.existsById(paymentMethod.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating farm id:  " + paymentMethod.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		paymentMethodDao.save(paymentMethod);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/paymenthod/{id}").buildAndExpand(paymentMethod.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-	}
-
-	
-
-	/* -----------retrieve all expenses ----------- */
-	@RequestMapping(value = "/expense/", method = RequestMethod.GET)
-	public ResponseEntity<List<Expense>> listAllExpenses() {
-		List<Expense> expenses = expenseDao.findAll();
-		if (expenses.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
-	}
-
-	/* -----------retrieve all projects ----------- */
-	@RequestMapping(value = "/projects/", method = RequestMethod.GET)
-	public ResponseEntity<List<Project>> listAllProjects() {
-		List<Project> projects = projectDao.findAll();
-		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
-	}
-
-	/* -----------retrieve a project ----------- */
-	@RequestMapping(value = "/project/{projid}", method = RequestMethod.GET)
-	public ResponseEntity<Project> getProject(@PathVariable("projid") int projid) {
-		Project project = projectDao.findProjectById(projid);
-		return new ResponseEntity<Project>(project, HttpStatus.OK);
-	}
-
-	/* -----------retrieve chart of accounts ----------- */
-	@RequestMapping(value = "/chartofaccounts/", method = RequestMethod.GET)
-	public ResponseEntity<List<ChartOfAccounts>> chartOfAccounts() {
-		List<ChartOfAccounts> chartofaccounts = chartOfAccountsDao.findAllCOA();
-		return new ResponseEntity<List<ChartOfAccounts>>(chartofaccounts, HttpStatus.OK);
-	}
-
-	/* -----------retrieve all payment methods ----------- */
-	@RequestMapping(value = "/paymentmethods/", method = RequestMethod.GET)
-	public ResponseEntity<List<PaymentMethod>> listAllPayementMethods() {
-		List<PaymentMethod> paymentmethod = paymentMethodDao.findAll();
-		return new ResponseEntity<List<PaymentMethod>>(paymentmethod, HttpStatus.OK);
-	}
-
-	/* -----------retrieve all suppliers ----------- */
-	@RequestMapping(value = "/suppliers/", method = RequestMethod.GET)
-	public ResponseEntity<List<Supplier>> listAllSuppliers() {
-		List<Supplier> suppliers = supplierDao.findAll();
-		return new ResponseEntity<List<Supplier>>(suppliers, HttpStatus.OK);
-	}
-
-	/* -----------retrieve all customers ----------- */
-	@RequestMapping(value = "/customers/", method = RequestMethod.GET)
-	public ResponseEntity<List<Customer>> listAllCustomers() {
-		List<Customer> customers = customerDao.findAll();
-		return new ResponseEntity<List<Customer>>(customers, HttpStatus.OK);
-	}
-
-	/*--------------------------------------------------------------------------------- 
-	 * @@@@@@ @listAllExpenses()
-	 * 	  -- Return : ResponseEntity<List<Expense>> 
-	 *    -- Retrieve All expenses for a user 
-	 * --------------------------------------------------------------------------------*/
-	@RequestMapping(value = "/expense/user/{userid}", method = RequestMethod.GET)
-	public ResponseEntity<List<Expense>> listAllExpenses(@PathVariable("userid") int userid) {
-		logger.info("Fetching Expenses for  userid {}", userid);
-		List<Expense> expenses = expenseDao.findAllExpensesByUserId(userid);
-
-		if (expenses.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Expense>>(expenses, HttpStatus.OK);
-	}
-
-	/*--------------------------------------------------------------------------------- 
-	 * @@@@@@ @listAllIncomes()
-	 * 	  -- Return : ResponseEntity<List<Income>> 
-	 *    -- Retrieve All incomes for a user 
-	 * --------------------------------------------------------------------------------*/
-	@RequestMapping(value = "/income/user/{userid}", method = RequestMethod.GET)
-	public ResponseEntity<List<Income>> listAllIncomes(@PathVariable("userid") int userid) {
-		logger.info("Fetching Expenses for  userid {}", userid);
-		List<Income> incomes = incomeDao.findAllIncomesByUserId(userid);
-
-		if (incomes.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Income>>(incomes, HttpStatus.OK);
-	}
-
-	
-
-	// ---------------- Create a supplier ------------- //
-	@RequestMapping(value = "/supplier/", method = RequestMethod.POST)
-	public ResponseEntity<?> createSupplier(@RequestBody Supplier supplier, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating Supplier >>>>> ", supplier);
-		if (supplierDao.existsById(supplier.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating project  " + supplier.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		supplierDao.save(supplier);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/supplier/{id}").buildAndExpand(supplier.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-	}
-
-	// ---------------- Create a customer ------------- //
-	@RequestMapping(value = "/customer/", method = RequestMethod.POST)
-	public ResponseEntity<?> createCustomer(@RequestBody Customer customer, UriComponentsBuilder ucBuilder) {
-		logger.info("Creating customer >>>>> ", customer);
-		if (customerDao.existsById(customer.getId())) {
-			return new ResponseEntity(new CustomErrorType("Error creating project  " + customer.getId() + "."),
-					HttpStatus.CONFLICT);
-		}
-		customerDao.save(customer);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/customer/{id}").buildAndExpand(customer.getId()).toUri());
-		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
-	}
-
-	// ------------------- Update an expense ------------------------------
-	@RequestMapping(value = "/expense/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateExpense(@PathVariable("id") int id, @RequestBody Expense expense) {
-
-		Expense currentExpense = expenseDao.findById(id);
-
-		if (currentExpense == null) {
-			return new ResponseEntity(new CustomErrorType("Unable to upate. User with id " + id + " not found."),
-					HttpStatus.NOT_FOUND);
-		}
-		currentExpense.setId(id);
-		currentExpense.setExpenseDate(expense.getExpenseDate());
-		currentExpense.setAccountId(expense.getAccountId());
-		currentExpense.setPaymentMethodId(expense.getPaymentMethodId());
-		currentExpense.setProjectId(expense.getProjectId());
-		currentExpense.setSupplierId(expense.getSupplierId());
-		currentExpense.setAmount(expense.getAmount());
-		currentExpense.setAccountId(expense.getAccountId());
-		currentExpense.setNotes(expense.getNotes());
-
-		expenseDao.save(currentExpense);
-
-		return new ResponseEntity<Expense>(currentExpense, HttpStatus.OK);
-	}
-
-	// ------------------- Delete a User-----------------------------------------
-
-	// @RequestMapping(value = "/expense/{id}", method = RequestMethod.DELETE)
-	// public ResponseEntity<?> deleteExpense(@PathVariable("id") int id) {
-	// logger.info("Fetching & Deleting User with id {}", id);
-
-	// Expense expense = expenseService.findById(id);
-	// if (expense == null) {
-	// logger.error("Unable to delete. User with id {} not found.", id);
-	// return new ResponseEntity(new CustomErrorType("Unable to delete. User with id
-	// " + id + " not found."),
-	//// HttpStatus.NOT_FOUND);
-	// }
-	// expenseService.deleteExpenseById(id);
-	// return new ResponseEntity<Expense>(HttpStatus.NO_CONTENT);
-	// }
-
-	// ------------------- Delete All Users-----------------------------
-
-	// @RequestMapping(value = "/users/", method = RequestMethod.DELETE)
-	// public ResponseEntity<Expense> deleteAllExpenses() {
-	// logger.info("Deleting All Users");
-
-	// expenseService.deleteAllExpenses();
-	// return new ResponseEntity<Expense>(HttpStatus.NO_CONTENT);
-	// }
-
 }

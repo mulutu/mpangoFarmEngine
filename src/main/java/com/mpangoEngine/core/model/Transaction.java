@@ -8,30 +8,120 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mpangoEngine.core.util.JsonDateDeserializer;
 import com.mpangoEngine.core.util.JsonDateSerializer;
 
-public class Transaction  {
+public class Transaction {
+
+	private int id;
+	private int accountId;
+	private BigDecimal amount;
+	private int customerSupplierId;
+	private Date transactionDate;
+	private int transactionTypeId;
+	private String transactionType;
+	private String description;
+	private int paymentMethodId;
+	private String paymentMethod;
+	private int projectId;
+	private String projectName;
+	private int userId;	
+	private String farmName;
+	private String accountName;
 	
-	private int transactionID;
-    private BigDecimal transactionAmount;
-    private Date transactionDate;
-    private String transactionDescription;
-    private String transactionType;
-    
-    public Transaction() {}
 
-	public int getTransactionID() {
-		return transactionID;
+	public Transaction() {
+	}
+	
+	
+
+	public String getFarmName() {
+		return farmName;
 	}
 
-	public void setTransactionID(int transactionID) {
-		this.transactionID = transactionID;
+
+
+	public void setFarmName(String farmName) {
+		this.farmName = farmName;
 	}
 
-	public BigDecimal getTransactionAmount() {
-		return transactionAmount;
+
+
+	public String getAccountName() {
+		return accountName;
 	}
 
-	public void setTransactionAmount(BigDecimal transactionAmount) {
-		this.transactionAmount = transactionAmount;
+
+
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
+
+
+
+	public String getTransactionType() {
+		return transactionType;
+	}
+
+
+
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+
+
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(int accountId) {
+		this.accountId = accountId;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
+	public int getCustomerSupplierId() {
+		return customerSupplierId;
+	}
+
+	public void setCustomerSupplierId(int customerSupplierId) {
+		this.customerSupplierId = customerSupplierId;
 	}
 
 	@JsonSerialize(using = JsonDateSerializer.class)
@@ -44,20 +134,81 @@ public class Transaction  {
 		this.transactionDate = transactionDate;
 	}
 
-	public String getTransactionDescription() {
-		return transactionDescription;
+	public int getTransactionTypeId() {
+		return transactionTypeId;
 	}
 
-	public void setTransactionDescription(String transactionDescription) {
-		this.transactionDescription = transactionDescription;
+	public void setTransactionTypeId(int transactionTypeId) {
+		this.transactionTypeId = transactionTypeId;
 	}
 
-	public String getTransactionType() {
-		return transactionType;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-    
+
+	public int getPaymentMethodId() {
+		return paymentMethodId;
+	}
+
+	public void setPaymentMethodId(int paymentMethodId) {
+		this.paymentMethodId = paymentMethodId;
+	}
+
+	public int getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(int projectId) {
+		this.projectId = projectId;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Transaction other = (Transaction) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Transaction [" 
+								+ "id=" + id + ", " 
+								+ "accountId=" + accountId + ", " 
+								+ "amount=" + amount + ", "
+								+ "customerSupplierId=" + customerSupplierId + ", "
+								+ "transactionDate=" + transactionDate + ", " 
+								+ "transactionTypeId=" + transactionTypeId + ", "
+								+ "description=" + description + ", "
+								+ "paymentMethodId=" + paymentMethodId + ", " 
+								+ "projectId=" + projectId + ", " 
+								+ "userId=" + userId 
+							+ "]";
+	}
 }
