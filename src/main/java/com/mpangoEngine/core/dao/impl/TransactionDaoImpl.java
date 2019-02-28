@@ -8,16 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.stereotype.Component;
 
 import com.mpangoEngine.core.dao.TransactionDao;
 import com.mpangoEngine.core.model.Transaction;
 
+@Component
+@Transactional
 public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao {
 
 	public static final Logger logger = LoggerFactory.getLogger(TransactionDaoImpl.class);

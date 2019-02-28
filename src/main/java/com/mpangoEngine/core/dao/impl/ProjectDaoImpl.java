@@ -28,25 +28,12 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 	public static final Logger logger = LoggerFactory.getLogger(ProjectDaoImpl.class);
 
 	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	
+	private JdbcTemplate jdbcTemplate;	
 	
 	@Autowired 
 	public ProjectDaoImpl(DataSource dataSource) {
 	    super();
 	    setDataSource(dataSource);
-	}
-
-	@Override
-	public List<Map<String, Object>> findProjectDetails(int projid) {
-		String query = "SELECT p.id, p.date_created, p.description as 'project_desc', p.project_name, p.user_id, p.farm_id, p.actual_output, p.expected_output, u.unit_description,  "
-				+ "f.farm_name, f.description "
-				+ "FROM project p, farm f , unit_of_output u  " 
-				+ "WHERE f.id=p.farm_id  AND p.unit_id = u.id AND  p.id = " + projid;
-		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(query);
-
-		return rows;
 	}
 
 	@Override
@@ -73,18 +60,9 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 	public int save(Project project) {
 		String sql = "INSERT INTO project "
 				+ "(`id`, `date_created`, `description`, `project_name`, `user_id`, `farm_id`, `actual_output`, `expected_output`, `unit_id`) "
-				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";
+				+ "VALUES (?, ?, ?, ?, ?, ? ,? , ?, ?)";		
 		
-		
-		logger.debug("ProjectDaoImpl->save() >>> getId {} ", project.getId());
-		logger.debug("ProjectDaoImpl->save() >>> getDateCreated {} ", project.getDateCreated());
-		logger.debug("ProjectDaoImpl->save() >>> getDescription {} ", project.getDescription());
-		logger.debug("ProjectDaoImpl->save() >>> getProjectName {} ", project.getProjectName());
-		logger.debug("ProjectDaoImpl->save() >>> getUserId {} ", project.getUserId());
-		logger.debug("ProjectDaoImpl->save() >>> getFarmId {} ", project.getFarmId());
-		logger.debug("ProjectDaoImpl->save() >>> getActualOutput {} ", project.getActualOutput());
-		logger.debug("ProjectDaoImpl->save() >>> getExpectedOutput {} ", project.getExpectedOutput());
-		logger.debug("ProjectDaoImpl->save() >>> getUnitId {} ", project.getUnitId() );
+		logger.debug("ProjectDaoImpl->save() >>> project {} ", project);
 		
 		Object[] params = { project.getId(), new Date(), project.getDescription(), project.getProjectName(),
 				project.getUserId(), project.getFarmId(), project.getActualOutput(), project.getExpectedOutput(), 1 };

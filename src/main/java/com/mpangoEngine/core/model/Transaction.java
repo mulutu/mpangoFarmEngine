@@ -3,11 +3,14 @@ package com.mpangoEngine.core.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mpangoEngine.core.util.JsonDateDeserializer;
 import com.mpangoEngine.core.util.JsonDateSerializer;
 
+@Component
 public class Transaction {
 
 	private int id;
@@ -28,8 +31,7 @@ public class Transaction {
 	
 
 	public Transaction() {
-	}
-	
+	}	
 	
 
 	public String getFarmName() {

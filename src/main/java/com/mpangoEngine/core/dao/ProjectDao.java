@@ -1,7 +1,6 @@
 package com.mpangoEngine.core.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,5 @@ public interface ProjectDao {
 	boolean existsById(int id);
 	
 	int save(Project project);
-	
-	List<Map<String, Object>> findProjectDetails(int projid);	
 	
 }

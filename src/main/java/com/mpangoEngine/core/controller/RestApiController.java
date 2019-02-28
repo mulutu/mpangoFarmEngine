@@ -1,11 +1,9 @@
 package com.mpangoEngine.core.controller;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,16 +29,11 @@ import com.mpangoEngine.core.dao.ChartOfAccountsDao;
 import com.mpangoEngine.core.dao.FarmDao;
 import com.mpangoEngine.core.dao.ProjectDao;
 import com.mpangoEngine.core.dao.TransactionDao;
-import com.mpangoEngine.core.model.COAAccountType;
 import com.mpangoEngine.core.model.ChartOfAccounts;
-import com.mpangoEngine.core.model.Customer;
 import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.MyUser;
 import com.mpangoEngine.core.model.Project;
-import com.mpangoEngine.core.model.ReportObject;
-import com.mpangoEngine.core.model.Supplier;
 import com.mpangoEngine.core.model.Transaction;
-import com.mpangoEngine.core.service.SecurityService;
 import com.mpangoEngine.core.service.UserService;
 import com.mpangoEngine.core.util.CustomErrorType;
 import com.mpangoEngine.core.util.EmailService;
@@ -54,9 +45,7 @@ import com.mpangoEngine.core.validator.UserValidator;
 public class RestApiController {
 
 	public static final Logger logger = LoggerFactory.getLogger(RestApiController.class);
-
-	@Autowired
-	private TransactionDao transactionDao;
+	
 	@Autowired
 	private ProjectDao projectDao;
 	@Autowired
@@ -69,7 +58,8 @@ public class RestApiController {
 	private UserValidator userValidator;
 	@Autowired
 	private EmailService emailService;
-
+	@Autowired
+	private TransactionDao transactionDao;
 	
 
 	/*
@@ -110,12 +100,6 @@ public class RestApiController {
 		return ResponseEntity.ok(response(rows));
 	}
 	
-	@RequestMapping(value = "/projects/{projid}/details", method = RequestMethod.GET)
-	public ResponseEntity<List<Map<String, Object>>> getProjectDetails(@PathVariable("projid") int projid) {
-		List<Map<String, Object>> projDetails = projectDao.findProjectDetails(projid);
-		return new ResponseEntity<List<Map<String, Object>>>(projDetails, HttpStatus.OK);
-	}
-	
 
 	/*
 	 * COA 
@@ -124,12 +108,6 @@ public class RestApiController {
 	public ResponseEntity<List<ChartOfAccounts>> chartOfAccounts() {
 		List<ChartOfAccounts> chartofaccounts = chartOfAccountsDao.findAllCOA();
 		return new ResponseEntity<List<ChartOfAccounts>>(chartofaccounts, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/coa/types", method = RequestMethod.GET)
-	public ResponseEntity<List<COAAccountType>> getCOAAccountTypes() {
-		List<COAAccountType> coa = chartOfAccountsDao.fetchAllAccountTypes();
-		return new ResponseEntity<List<COAAccountType>>(coa, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/coa", method = RequestMethod.POST)
@@ -173,12 +151,6 @@ public class RestApiController {
 	public ResponseEntity<List<ChartOfAccounts>> getCOAByUser(@PathVariable("userId") int userId) {
 		List<ChartOfAccounts> coa = chartOfAccountsDao.findAllCOAByUser(userId);
 		return new ResponseEntity<List<ChartOfAccounts>>(coa, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/users/{userId}/farms", method = RequestMethod.GET)
-	public ResponseEntity<List<Farm>> getFarmsByUser(@PathVariable("userId") int userId) {
-		List<Farm> farms = farmDao.findAllFarmsByUserId(userId);
-		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/users/{userid}/projects", method = RequestMethod.GET)
