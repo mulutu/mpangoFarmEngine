@@ -30,36 +30,44 @@ public class Transaction {
 	public Transaction() {
 	}	
 	
+	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId ) {
+		this.transactionDate = transactionDate;
+		this.amount = amount;
+		this.accountId =  accountId;
+		this.projectId = projectId;
+		this.description = description;
+		this.userId = userId;	
+	}	
+	
+	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId, int id ) {
+		this.transactionDate = transactionDate;
+		this.amount = amount;
+		this.accountId =  accountId;
+		this.projectId = projectId;
+		this.description = description;
+		this.userId = userId;
+		this.id = id;		
+	}		
 
 	public String getFarmName() {
 		return farmName;
 	}
 
-
-
 	public void setFarmName(String farmName) {
 		this.farmName = farmName;
 	}
-
-
 
 	public String getAccountName() {
 		return accountName;
 	}
 
-
-
 	public void setAccountName(String accountName) {
 		this.accountName = accountName;
 	}
 
-
-
 	public String getTransactionType() {
 		return transactionType;
 	}
-
-
 
 	public void setTransactionType(String transactionType) {
 		this.transactionType = transactionType;
