@@ -113,7 +113,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.mpangoEngine.core.MpangoFarmEngineApplication</mainClass>
+							<mainClass>com.mpangoEngine.core.Mpango</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
