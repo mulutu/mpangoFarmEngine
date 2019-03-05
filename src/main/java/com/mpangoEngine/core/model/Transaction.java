@@ -23,6 +23,7 @@ public class Transaction {
 	private int projectId;
 	private String projectName;
 	private int userId;	
+	private int farmId;
 	private String farmName;
 	private String accountName;
 	
@@ -30,7 +31,7 @@ public class Transaction {
 	public Transaction() {
 	}	
 	
-	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId ) {
+	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId  ) {
 		this.transactionDate = transactionDate;
 		this.amount = amount;
 		this.accountId =  accountId;
@@ -39,15 +40,25 @@ public class Transaction {
 		this.userId = userId;	
 	}	
 	
-	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId, int id ) {
+	public Transaction( Date transactionDate, BigDecimal amount, int accountId, int projectId, String description, int userId, int transactionTypeId ) {
 		this.transactionDate = transactionDate;
 		this.amount = amount;
 		this.accountId =  accountId;
 		this.projectId = projectId;
 		this.description = description;
 		this.userId = userId;
-		this.id = id;		
-	}		
+		this.transactionTypeId = transactionTypeId;		
+	}	
+	
+	
+
+	public int getFarmId() {
+		return farmId;
+	}
+
+	public void setFarmId(int farmId) {
+		this.farmId = farmId;
+	}
 
 	public String getFarmName() {
 		return farmName;
