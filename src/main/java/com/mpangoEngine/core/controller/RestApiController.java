@@ -25,10 +25,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.mpangoEngine.core.dao.ChartOfAccountsDao;
+import com.mpangoEngine.core.dao.AccountDao;
 import com.mpangoEngine.core.dao.FarmDao;
 import com.mpangoEngine.core.dao.ProjectDao;
 import com.mpangoEngine.core.dao.TransactionDao;
+import com.mpangoEngine.core.model.Account;
 import com.mpangoEngine.core.model.ChartOfAccounts;
 import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.MyUser;
@@ -51,7 +52,7 @@ public class RestApiController {
 	@Autowired
 	private FarmDao farmDao;
 	@Autowired
-	private ChartOfAccountsDao chartOfAccountsDao;
+	private AccountDao accountDao;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -128,18 +129,18 @@ public class RestApiController {
 	 * COA 
 	 */
 	@RequestMapping(value = "/coa/", method = RequestMethod.GET)
-	public ResponseEntity<List<ChartOfAccounts>> chartOfAccounts() {
-		List<ChartOfAccounts> chartofaccounts = chartOfAccountsDao.findAllCOA();
-		return new ResponseEntity<List<ChartOfAccounts>>(chartofaccounts, HttpStatus.OK);
+	public ResponseEntity<List<Account>> chartOfAccounts() {
+		List<Account> chartofaccounts = accountDao.findAllAccounts();
+		return new ResponseEntity<List<Account>>(chartofaccounts, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/coa", method = RequestMethod.POST)
-	public ResponseEntity<?> createCOA(@RequestBody ChartOfAccounts coa, UriComponentsBuilder ucBuilder) {
+	public ResponseEntity<?> createCOA(@RequestBody Account coa, UriComponentsBuilder ucBuilder) {
 		logger.info("FinancialsApiController->createCOA() :: >>>> ", coa);
-		if (chartOfAccountsDao.existsById(coa.getId())) {
+		if (accountDao.existsById(coa.getId())) {
 			return new ResponseEntity(HttpStatus.CONFLICT);
 		}
-		chartOfAccountsDao.save(coa);
+		accountDao.save(coa);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(ucBuilder.path("/api/coa/{id}").buildAndExpand(coa.getId()).toUri());
 		return new ResponseEntity<String>(headers, HttpStatus.CREATED);
@@ -170,9 +171,15 @@ public class RestApiController {
 		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/users/{userId}/accounts", method = RequestMethod.GET)
+	public ResponseEntity<List<Account>> getCOAByUser(@PathVariable("userId") int userId) {
+		List<Account> coa = accountDao.findAllAccountsByUser(userId);
+		return new ResponseEntity<List<Account>>(coa, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/users/{userId}/coa", method = RequestMethod.GET)
-	public ResponseEntity<List<ChartOfAccounts>> getCOAByUser(@PathVariable("userId") int userId) {
-		List<ChartOfAccounts> coa = chartOfAccountsDao.findAllCOAByUser(userId);
+	public ResponseEntity<List<ChartOfAccounts>> getUserCAO(@PathVariable("userId") int userId) {
+		List<ChartOfAccounts> coa = accountDao.fetchUserCoa(userId);
 		return new ResponseEntity<List<ChartOfAccounts>>(coa, HttpStatus.OK);
 	}
 	
