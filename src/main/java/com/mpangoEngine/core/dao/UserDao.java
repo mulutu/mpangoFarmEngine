@@ -6,7 +6,7 @@ import com.mpangoEngine.core.model.MyUser;
 
 public interface UserDao {
 
-	List<MyUser> getUserDetails(long userid);
+	MyUser getUserDetails(int userid);
 	
 	MyUser findUserByUserName(String username);
 	
@@ -16,7 +16,7 @@ public interface UserDao {
 	
 	List<MyUser> getAllUsers();
 	
-	public void saveUser(MyUser user);
+	public int saveUser(MyUser user);
 	
 	public List<String> getRoleNames(long userId);
 

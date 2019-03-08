@@ -54,9 +54,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	public List<MyUser> getUserDetails(long userid) {
+	public MyUser getUserDetails(int userid) {
 		return userDao.getUserDetails(userid);
-
 	}
 
 	@Override

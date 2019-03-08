@@ -29,6 +29,7 @@ import com.mpangoEngine.core.dao.AccountDao;
 import com.mpangoEngine.core.dao.FarmDao;
 import com.mpangoEngine.core.dao.ProjectDao;
 import com.mpangoEngine.core.dao.TransactionDao;
+import com.mpangoEngine.core.dao.UserDao;
 import com.mpangoEngine.core.model.Account;
 import com.mpangoEngine.core.model.ChartOfAccounts;
 import com.mpangoEngine.core.model.Farm;
@@ -53,6 +54,8 @@ public class RestApiController {
 	private FarmDao farmDao;
 	@Autowired
 	private AccountDao accountDao;
+	@Autowired
+	private UserDao userDao;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -158,14 +161,14 @@ public class RestApiController {
 	 * USERS
 	 */
 	@RequestMapping(value = "/users/{userid}", method = RequestMethod.GET)
-	public ResponseEntity<List<MyUser>> getUserDetails(@PathVariable("userid") int userid) {
-		List<MyUser> userDetails = userService.getUserDetails(userid);
-		return new ResponseEntity<List<MyUser>>(userDetails, HttpStatus.OK);
+	public ResponseEntity<MyUser> getUserDetails(@PathVariable("userid") int userid) {
+		MyUser userDetails = userDao.getUserDetails(userid);
+		return new ResponseEntity<MyUser>(userDetails, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public ResponseEntity<List<MyUser>> getAllUsers() {
-		List<MyUser> allUsers = userService.getAllUsers();
+		List<MyUser> allUsers = userDao.getAllUsers();
 		return new ResponseEntity<List<MyUser>>(allUsers, HttpStatus.OK);
 	}
 	
@@ -229,7 +232,7 @@ public class RestApiController {
 	
 	@RequestMapping(value = "/users/token/{token}", method = RequestMethod.GET)
 	public ResponseEntity<?> showConfirmationPage(@PathVariable("token") String token) {
-		MyUser user = userService.findByConfirmationToken(token);
+		MyUser user = userDao.findByConfirmationToken(token);
 		if (user == null) {
 			return new ResponseEntity(new CustomErrorType("invalidToken"), HttpStatus.NOT_FOUND);
 		} else {
@@ -243,7 +246,7 @@ public class RestApiController {
 		String username = user.getUsername();
 		String password = user.getPassword();
 
-		MyUser myUser = userService.findUserByUserName(username);
+		MyUser myUser = userDao.findUserByUserName(username);
 		UserDetails userDetails = userService.loadUserByUsername(username);
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) userDetails.getAuthorities();
@@ -260,18 +263,13 @@ public class RestApiController {
 	@RequestMapping(value = "/users", method = RequestMethod.POST)
 	public ResponseEntity<?> registration(@RequestBody MyUser user, HttpServletRequest request) {
 
-		System.out.println("userForm >>> " + user.getEmail() + " ::: " + user.getPassword());
-
 		logger.info("RestApiController ---> registration() >>>> email {}", user.getEmail());
 		logger.info("RestApiController ---> registration() >>>> getPassword {}", user.getPassword());
 
 		//userValidator.validate(user);
-
 		
 		// Generate random 36-character string token for confirmation link
 		user.setConfirmationToken(UUID.randomUUID().toString());
-
-		logger.info("RestApiController ---> registration() >>>> randomUUID {}", UUID.randomUUID().toString());
 
 		userService.saveUser(user);
 

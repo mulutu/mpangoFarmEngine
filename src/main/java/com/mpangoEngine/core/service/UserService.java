@@ -11,7 +11,7 @@ import com.mpangoEngine.core.model.Role;
 
 public interface UserService {
 
-	List<MyUser> getUserDetails(long userid);
+	MyUser getUserDetails(int userid);
 	
 	List<MyUser> getAllUsers();
 	
