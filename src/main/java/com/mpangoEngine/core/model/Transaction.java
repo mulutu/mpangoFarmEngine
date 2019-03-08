@@ -50,8 +50,8 @@ public class Transaction {
 		this.transactionTypeId = transactionTypeId;		
 	}	
 	
-	public Transaction( int transactionId, Date transactionDate, BigDecimal amount, int accountId, int projectId, String description ) {
-		this.id = transactionId;
+	public Transaction( int id, Date transactionDate, BigDecimal amount, int accountId, int projectId, String description ) {
+		this.id = id;
 		this.transactionDate = transactionDate;
 		this.amount = amount;
 		this.accountId =  accountId;

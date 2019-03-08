@@ -257,21 +257,17 @@ public class RestApiController {
 		return ResponseEntity.ok(myUser);
 	}
 	
-	@RequestMapping(value = "/users/register", method = RequestMethod.POST)
-	public ResponseEntity<?> registration(@RequestBody MyUser user, BindingResult bindingResult,
-			HttpServletRequest request, UriComponentsBuilder ucBuilder) {
+	@RequestMapping(value = "/users", method = RequestMethod.POST)
+	public ResponseEntity<?> registration(@RequestBody MyUser user, HttpServletRequest request) {
 
 		System.out.println("userForm >>> " + user.getEmail() + " ::: " + user.getPassword());
 
 		logger.info("RestApiController ---> registration() >>>> email {}", user.getEmail());
 		logger.info("RestApiController ---> registration() >>>> getPassword {}", user.getPassword());
 
-		userValidator.validate(user, bindingResult);
+		//userValidator.validate(user);
 
-		if (bindingResult.hasErrors()) {
-			return new ResponseEntity(HttpStatus.CONFLICT);
-		}
-
+		
 		// Generate random 36-character string token for confirmation link
 		user.setConfirmationToken(UUID.randomUUID().toString());
 

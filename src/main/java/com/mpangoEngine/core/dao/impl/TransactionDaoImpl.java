@@ -157,7 +157,8 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 
 	@Override
 	public List<Transaction> findUserTransactions(int userId) {		
-		String Query = "SELECT e.id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, p.project_name, f.id, f.farm_name, coa.account_name " 
+		String Query = "SELECT e.id as transaction_id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, "
+				+ "p.project_name, f.id as farm_id, f.farm_name, coa.account_name " 
 						+ " FROM transactions e, user u, projects p, farm f, accounts coa "
 						+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id and e.user_id = " + userId; 
 
@@ -168,8 +169,10 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(Query);		
 
 		for (Map<String, Object> row : rows) {
+			
 			Transaction transaction = new Transaction();
-			transaction.setId((int) row.get("id"));
+			
+			transaction.setId((int) row.get("transaction_id"));
 			transaction.setAccountId((int) row.get("account_id"));
 			transaction.setTransactionTypeId((int) row.get("transaction_type_id"));
 			transaction.setAmount((BigDecimal) row.get("amount"));
@@ -178,6 +181,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 			transaction.setDescription((String) row.get("description"));
 			transaction.setUserId((int) row.get("user_id"));
 			transaction.setProjectName((String) row.get("project_name"));
+			transaction.setFarmId((int) row.get("farm_id"));
 			transaction.setFarmName((String) row.get("farm_name"));
 			transaction.setAccountName((String) row.get("account_name"));
 

@@ -21,40 +21,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.JoinColumn;
 
-@Entity
-@Table(name = "user")
 public class MyUser implements Serializable {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
 	private String firstName;
-
 	private String lastName;
-
-	@Column(unique=true)
 	private String email;
-	
-	@Column(unique=true)
 	private String username;
-
 	private String password;
-
 	private boolean enabled;
-
 	private String confirmationToken;
-
-	@JsonIgnore
-	//@ManyToMany(cascade = { CascadeType.MERGE, FetchType.EAGER })
-	@ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
-	@JoinTable(name = "user_role", joinColumns = {
-			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
-					@JoinColumn(name = "role_id", referencedColumnName = "id") })
-	//private Set<Role> roles;
 	private Collection<Role> roles;
-	
-	@Transient
 	private String userType;
 	
 	public String getUserType() {
@@ -64,13 +41,6 @@ public class MyUser implements Serializable {
 	public void setUserType(String userType) {
 		this.userType = userType;
 	}
-	
-	
-	
-
-	//public Set<Role> getRoles() {
-		//return roles;
-	//}
 
 	public Collection<Role> getRoles() {
 		return roles;
@@ -78,12 +48,7 @@ public class MyUser implements Serializable {
 
 	public void setRoles(Collection<Role> roles) {
 		this.roles = roles;
-	}
-
-	//public void setRoles(Set<Role> roles) {
-		//this.roles = roles;
-	//}
-	
+	}	
 
 	public String getUsername() {
 		return username;
@@ -148,15 +113,5 @@ public class MyUser implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	/*
-	 * @ManyToMany
-	 * 
-	 * @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
-	 * inverseJoinColumns = @JoinColumn(name = "role_id")) public Set<UserRole>
-	 * getRoles() { return roles; }
-	 * 
-	 * public void setRoles(Set<UserRole> roles) { this.roles = roles; }
-	 */
 
 }
