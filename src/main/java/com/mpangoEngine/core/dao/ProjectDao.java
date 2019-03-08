@@ -15,6 +15,8 @@ public interface ProjectDao {
 	
 	List<Project> findAll();
 	
+	List<Project> findAllProjectsSummaryByUser(int userId);
+	
 	List<Project> findAllProjectsByUser(int userId);
 	
 	boolean existsById(int id);

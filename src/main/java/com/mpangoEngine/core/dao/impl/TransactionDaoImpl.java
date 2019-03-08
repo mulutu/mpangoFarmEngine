@@ -45,7 +45,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 	public Transaction findTransactionById(int id) {
 		String Query = "SELECT e.id, e.account_id, transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.payment_method_id, e.user_id, "
 				+ "p.project_name, f.farm_name, coa.account_name "
-				+ "FROM transactions e, user u, projects p, farm f, chart_of_accounts coa "
+				+ "FROM transactions e, user u, projects p, farm f, accounts coa "
 				+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id and e.id = "
 				+ id;
 
@@ -97,25 +97,27 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 
 	@Override
 	public int updateTransaction(Transaction transaction) {
-		String sql = " UPDATE transactions "
-				+ " SET account_id=?, transaction_type_id=?, amount=?, transaction_date=?, description=?, user_id=?, project_id=? "
+		String Query = " UPDATE transactions "
+				+ " SET account_id=?, transaction_type_id=?, amount=?, transaction_date=?, description=?, project_id=? "
 				+ " WHERE id=?";
 
 		logger.debug("TransactionDaoImpl->updateTransaction() >>> transaction {} ", transaction);
 
+		logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);
+
 		Object[] params = { transaction.getAccountId(), transaction.getTransactionTypeId(), transaction.getAmount(),
 				transaction.getTransactionDate(), transaction.getDescription(),
-				transaction.getUserId(), transaction.getProjectId(), transaction.getId() };
-		int[] types = { Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER };
+				 transaction.getProjectId(), transaction.getId() };
+		int[] types = { Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER };
 
-		return getJdbcTemplate().update(sql, params, types);
+		return getJdbcTemplate().update(Query, params, types);
 	}
 
 	@Override
 	public List<Transaction> findAll() {
 		String Query = "SELECT e.id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, "
 				+ "p.project_name, f.farm_name, coa.account_name "
-				+ "FROM transactions e, user u, projects p, farm f, chart_of_accounts coa "
+				+ "FROM transactions e, user u, projects p, farm f, accounts coa "
 				+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id ";
 
 		logger.debug("TransactionDaoImpl->findAll() >>> Query {} ", Query);
@@ -156,7 +158,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 	@Override
 	public List<Transaction> findUserTransactions(int userId) {		
 		String Query = "SELECT e.id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, p.project_name, f.id, f.farm_name, coa.account_name " 
-						+ " FROM transactions e, user u, projects p, farm f, chart_of_accounts coa "
+						+ " FROM transactions e, user u, projects p, farm f, accounts coa "
 						+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id and e.user_id = " + userId; 
 
 		logger.debug("TransactionDaoImpl->findUserTransactions() >>> Query {} ", Query);

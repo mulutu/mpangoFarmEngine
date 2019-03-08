@@ -50,6 +50,15 @@ public class Transaction {
 		this.transactionTypeId = transactionTypeId;		
 	}	
 	
+	public Transaction( int transactionId, Date transactionDate, BigDecimal amount, int accountId, int projectId, String description ) {
+		this.id = transactionId;
+		this.transactionDate = transactionDate;
+		this.amount = amount;
+		this.accountId =  accountId;
+		this.projectId = projectId;
+		this.description = description;	
+	}	
+	
 	
 
 	public int getFarmId() {
@@ -158,28 +167,6 @@ public class Transaction {
 
 	public void setUserId(int userId) {
 		this.userId = userId;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Transaction other = (Transaction) obj;
-		if (id != other.id)
-			return false;
-		return true;
 	}
 
 	@Override

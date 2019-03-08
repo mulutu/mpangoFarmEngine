@@ -17,24 +17,23 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mpangoEngine.core.util.JsonDateDeserializer;
 import com.mpangoEngine.core.util.JsonDateSerializer;
 
-@Entity
-@Table(name = "project")
+
 public class Project {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO) private int id;	
-	@Column(name="user_id") private int UserId;	
-	@Column(name="farm_id") private int FarmId;	
-	@Column(name="project_name") private String ProjectName;	
-	@Column(name="date_created") private Date DateCreated;	
-	@Column(name="expected_output") private int expectedOutput;	
-	@Column(name="actual_output") private int actualOutput;	
-	@Column(name="unit_id") private int unitId;	
-	@Transient private String unitDescription;
+
+	private int id;
+	private int UserId;	
+	private int FarmId;	
+	private String ProjectName;	
+	private Date DateCreated;	
+	private int expectedOutput;	
+	private int actualOutput;	
+	private int unitId;	
+	private String unitDescription;
 	
-	@Transient private List<Transaction>  transactions;
+	private List<Transaction>  transactions;
 	
-	@Transient private BigDecimal totalExpeses;
-	@Transient private BigDecimal totalIncomes;
+	private BigDecimal totalExpeses;
+	private BigDecimal totalIncomes;
 	
 	private String Description;
 

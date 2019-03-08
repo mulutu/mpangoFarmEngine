@@ -119,7 +119,7 @@ public class AccountDaoImpl extends JdbcDaoSupport implements AccountDao {
 
 	@Override
 	public void save(Account coa) {
-		String sql = "INSERT INTO chart_of_accounts "
+		String sql = "INSERT INTO accounts "
 				+ "( `account_name`, `account_code`, `account_type_id`, `user_id`, `description`) "
 				+ "VALUES ( ?, ?, ?, ?, ?)";
 

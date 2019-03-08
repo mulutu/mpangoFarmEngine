@@ -66,8 +66,15 @@ public class RestApiController {
 	/*
 	 * TRANSACTIONS
 	 */
+	@RequestMapping(value = "/transactions", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateTransaction(@RequestBody Transaction transaction ) {
+		logger.info("Updating transaction >>>>> {} ", transaction);
+		int rows = transactionDao.updateTransaction(transaction);
+		return ResponseEntity.ok(response(rows));
+	}
 	@RequestMapping(value = "/transactions", method = RequestMethod.GET)
 	public ResponseEntity<List<Transaction>> listAllTransactions() {
+		logger.info("List transactions >>>>> ");
 		List<Transaction> projects = transactionDao.findAll();
 		return new ResponseEntity<List<Transaction>>(projects, HttpStatus.OK);
 	}
@@ -181,6 +188,16 @@ public class RestApiController {
 	public ResponseEntity<List<ChartOfAccounts>> getUserCAO(@PathVariable("userId") int userId) {
 		List<ChartOfAccounts> coa = accountDao.fetchUserCoa(userId);
 		return new ResponseEntity<List<ChartOfAccounts>>(coa, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userid}/projects/summary", method = RequestMethod.GET)
+	public ResponseEntity<List<Project>> listAllProjectsSummaryByUser(@PathVariable("userid") int userid) {
+		logger.info("Fetching projects for  userid {}", userid);
+		List<Project> projects = projectDao.findAllProjectsSummaryByUser(userid);
+		if (projects.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+		}
+		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/users/{userid}/projects", method = RequestMethod.GET)
