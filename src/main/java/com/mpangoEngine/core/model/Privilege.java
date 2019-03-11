@@ -9,16 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-@Entity
-@Table
 public class Privilege {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+
+	private int id;
 
 	private String name;
 
-	@ManyToMany(mappedBy = "privileges")
 	private Collection<Role> roles;
 
 	public Privilege() {
@@ -29,11 +25,11 @@ public class Privilege {
 		this.name = name;
 	}
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

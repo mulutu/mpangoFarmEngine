@@ -23,7 +23,7 @@ import javax.persistence.JoinColumn;
 
 public class MyUser implements Serializable {
 
-	private long id;
+	private int id;
 	private String firstName;
 	private String lastName;
 	private String email;
@@ -74,11 +74,11 @@ public class MyUser implements Serializable {
 		this.confirmationToken = confirmationToken;
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -112,6 +112,20 @@ public class MyUser implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	@Override
+	public String toString() {
+		return "Transaction [" 
+								+ "id=" + id + ", " 
+								+ "firstName=" + firstName + ", " 
+								+ "lastName=" + lastName + ", "
+								+ "email=" + email + ", " 
+								+ "username=" + username + ", "
+								+ "password=" + password + ", "
+								+ "enabled=" + enabled + ", " 
+								+ "userType=" + userType 
+							+ "]";
 	}
 
 }

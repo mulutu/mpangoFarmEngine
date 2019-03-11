@@ -1,35 +1,61 @@
 package com.mpangoEngine.core.dao.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.sql.DataSource;
 import javax.transaction.Transactional;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Component;
 
 import com.mpangoEngine.core.dao.PrivilegeDao;
+import com.mpangoEngine.core.model.MyUser;
 import com.mpangoEngine.core.model.Privilege;
 
 @Component
-public class PrivilegeDaoImpl implements PrivilegeDao {
+public class PrivilegeDaoImpl extends JdbcDaoSupport implements PrivilegeDao {
+	
+	public static final Logger logger = LoggerFactory.getLogger(PrivilegeDaoImpl.class);
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	public PrivilegeDaoImpl(DataSource dataSource) {
+		super();
+		setDataSource(dataSource);
+	}
 
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
+	
+	@Override
+	public Privilege findPrivilegeByName(String name) {		
+		
+		String Query = "SELECT id,name FROM privileges WHERE name = '" + name + "'";
 
-	public Privilege findPrivilegeByName(String name) {
-		Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaQuery<Privilege> criteria = builder.createQuery(Privilege.class);
-		Root<Privilege> contactRoot = criteria.from(Privilege.class);
-		// ParameterExpression<Integer> p = builder.parameter(Integer.class);
-		criteria.select(contactRoot).where(builder.equal(contactRoot.get("name"), name));
-		Privilege privilege = (Privilege) session.createQuery(criteria).getSingleResult();
-		session.close();
-		return privilege;
+		logger.debug("PrivilegeDaoImpl->findPrivilegeByName() >>> Query {} ", Query);
+
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(Query);
+
+		Privilege pri = new Privilege();
+
+		for (Map<String, Object> row : rows) {
+			pri.setId((int) row.get("id"));
+			pri.setName((String) row.get("name"));
+		}		
+		return pri;
 	}
 
 	@Override

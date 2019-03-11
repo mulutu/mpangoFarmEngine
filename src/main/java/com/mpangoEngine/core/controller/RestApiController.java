@@ -1,12 +1,16 @@
 package com.mpangoEngine.core.controller;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,14 +32,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.mpangoEngine.core.dao.AccountDao;
 import com.mpangoEngine.core.dao.FarmDao;
+import com.mpangoEngine.core.dao.PrivilegeDao;
 import com.mpangoEngine.core.dao.ProjectDao;
+import com.mpangoEngine.core.dao.RoleDao;
 import com.mpangoEngine.core.dao.TransactionDao;
 import com.mpangoEngine.core.dao.UserDao;
 import com.mpangoEngine.core.model.Account;
 import com.mpangoEngine.core.model.ChartOfAccounts;
 import com.mpangoEngine.core.model.Farm;
 import com.mpangoEngine.core.model.MyUser;
+import com.mpangoEngine.core.model.Privilege;
 import com.mpangoEngine.core.model.Project;
+import com.mpangoEngine.core.model.Role;
 import com.mpangoEngine.core.model.Transaction;
 import com.mpangoEngine.core.service.UserService;
 import com.mpangoEngine.core.util.CustomErrorType;
@@ -64,6 +73,15 @@ public class RestApiController {
 	private EmailService emailService;
 	@Autowired
 	private TransactionDao transactionDao;
+	
+	@Autowired
+	private PrivilegeDao privilegeDao;
+
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	@Autowired
+	private RoleDao RoleDao;
 	
 	
 	/*
@@ -223,7 +241,7 @@ public class RestApiController {
 			public int compare(Transaction o1, Transaction o2) {
 				if (o1.getTransactionDate() == null || o2.getTransactionDate() == null)
 					return 0;
-				return o1.getTransactionDate().compareTo(o2.getTransactionDate());
+				return o2.getTransactionDate().compareTo(o1.getTransactionDate());
 			}
 		});
 
@@ -247,7 +265,7 @@ public class RestApiController {
 		String password = user.getPassword();
 
 		MyUser myUser = userDao.findUserByUserName(username);
-		UserDetails userDetails = userService.loadUserByUsername(username);
+		UserDetails userDetails = userDao.loadUserByUsername(username);
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) userDetails.getAuthorities();
 
@@ -262,37 +280,83 @@ public class RestApiController {
 	
 	@RequestMapping(value = "/users", method = RequestMethod.POST)
 	public ResponseEntity<?> registration(@RequestBody MyUser user, HttpServletRequest request) {
-
-		logger.info("RestApiController ---> registration() >>>> email {}", user.getEmail());
-		logger.info("RestApiController ---> registration() >>>> getPassword {}", user.getPassword());
+		logger.info("RestApiController ---> User Registration() >>>> user {}", user);
 
 		//userValidator.validate(user);
+	
+		user.setConfirmationToken(UUID.randomUUID().toString());		
 		
-		// Generate random 36-character string token for confirmation link
-		user.setConfirmationToken(UUID.randomUUID().toString());
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		user.setEnabled(true);
 
-		userService.saveUser(user);
+		Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
+		Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
 
-		String appUrl = request.getScheme() + "://" + request.getServerName();
-		SimpleMailMessage registrationEmail = new SimpleMailMessage();
-		registrationEmail.setTo(user.getEmail());
-		registrationEmail.setSubject("Registration Confirmation");
-		registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl
-				+ "/confirm?token=" + user.getConfirmationToken());
-		registrationEmail.setFrom("noreply@domain.com");
+		List<Privilege> adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);
+		createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
+		createRoleIfNotFound("ROLE_USER", Arrays.asList(readPrivilege));
 
-		logger.info("RestApiController ---> registration() >>>> sendEmail ");
+		Role role = RoleDao.findByRole("ROLE_USER");
+		user.setRoles(new HashSet<Role>(Arrays.asList(role)));
 
-		emailService.sendEmail(registrationEmail);
+		int rows = userDao.saveUser(user);
+		
+		// create some accounts
+		if(rows > 0) {
+			user.setId(rows);
+			userDao.createAccounts(user);
+		}
+
+		//String appUrl = request.getScheme() + "://" + request.getServerName();
+		//SimpleMailMessage registrationEmail = new SimpleMailMessage();
+		//registrationEmail.setTo(user.getEmail());
+		//registrationEmail.setSubject("Registration Confirmation");
+		//registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl
+		//		+ "/confirm?token=" + user.getConfirmationToken());
+		//registrationEmail.setFrom("noreply@domain.com");
+
+		//logger.info("RestApiController ---> registration() >>>> sendEmail ");
+
+		//emailService.sendEmail(registrationEmail);
 
 		// model.addAttribute("confirmationMessage", "A confirmation e-mail has been
 		// sent to " + user.getEmail());
 
 		// securityService.autologin(user.getEmail(), user.getPassword());
 
-		logger.info("RestApiController ---> registration() >>>> email sent ");
+		//logger.info("RestApiController ---> registration() >>>> email sent ");
 
-		return new ResponseEntity<String>(user.getEmail(), HttpStatus.CREATED);
+		return ResponseEntity.ok(response(rows));
+	}
+	
+	private Privilege createPrivilegeIfNotFound(String name) {
+		Privilege privilege = null;
+
+		try {
+			privilege = privilegeDao.findPrivilegeByName(name);
+		} catch (NoResultException e) {
+			System.out.println("privilege not found >>>>>>>>>>>>>   " + name);
+		}
+		if (privilege == null) {
+			Privilege newprivilege = new Privilege(name);
+			privilegeDao.savePrivilege(newprivilege);
+		}
+		return privilege;
+	}
+
+	private Role createRoleIfNotFound(String name, Collection<Privilege> privileges) {
+		Role role = null;
+
+		try {
+			role = RoleDao.findByRole(name);
+		} catch (NoResultException e) {
+		}
+		if (role == null) {
+			role = new Role(name);
+			role.setPrivileges(privileges);
+			RoleDao.saveRole(role);
+		}
+		return role;
 	}
 
 	private ResponseModel response(int rows) {

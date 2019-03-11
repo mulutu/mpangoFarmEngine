@@ -45,7 +45,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 	public Transaction findTransactionById(int id) {
 		String Query = "SELECT e.id, e.account_id, transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.payment_method_id, e.user_id, "
 				+ "p.project_name, f.farm_name, coa.account_name "
-				+ "FROM transactions e, user u, projects p, farm f, accounts coa "
+				+ "FROM transactions e, users u, projects p, farm f, accounts coa "
 				+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id and e.id = "
 				+ id;
 
@@ -117,7 +117,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 	public List<Transaction> findAll() {
 		String Query = "SELECT e.id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, "
 				+ "p.project_name, f.farm_name, coa.account_name "
-				+ "FROM transactions e, user u, projects p, farm f, accounts coa "
+				+ "FROM transactions e, users u, projects p, farm f, accounts coa "
 				+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id ";
 
 		logger.debug("TransactionDaoImpl->findAll() >>> Query {} ", Query);
@@ -159,7 +159,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 	public List<Transaction> findUserTransactions(int userId) {		
 		String Query = "SELECT e.id as transaction_id, e.account_id, e.transaction_type_id, e.amount, e.project_id, e.transaction_date, e.description, e.user_id, "
 				+ "p.project_name, f.id as farm_id, f.farm_name, coa.account_name " 
-						+ " FROM transactions e, user u, projects p, farm f, accounts coa "
+						+ " FROM transactions e, users u, projects p, farm f, accounts coa "
 						+ "WHERE u.id=e.user_id and p.id = e.project_id and p.farm_id = f.id and coa.id = e.account_id and e.user_id = " + userId; 
 
 		logger.debug("TransactionDaoImpl->findUserTransactions() >>> Query {} ", Query);

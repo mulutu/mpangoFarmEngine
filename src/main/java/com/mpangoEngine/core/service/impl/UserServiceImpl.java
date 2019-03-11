@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (alreadySetup)
 			return;
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-		user.setEnabled(false);
+		user.setEnabled(true);
 
 		Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
 		Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
@@ -165,7 +165,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		boolean credentialsNonExpired = MyUser.isEnabled();
 		boolean accountNonLocked = MyUser.isEnabled();
 		
-		long userID = MyUser.getId();
+		int userID = MyUser.getId();
 
 		//Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		
