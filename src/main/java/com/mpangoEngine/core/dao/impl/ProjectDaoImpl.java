@@ -77,9 +77,16 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 		//String Query2 = " SELECT `id`, `date_created`, `description`, `project_name`, `user_id`, `farm_id`, `actual_output`, `expected_output`, `unit_id` "
 		//		+ " FROM projects WHERE user_id = " + userId;		
 		
-		String Query = "SELECT  sum( IF(t.transaction_type_id=0, t.amount, 0)) as total_income , sum( IF(t.transaction_type_id=1, t.amount, 0)) as total_expense , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id, p.farm_id, p.actual_output, p.expected_output, p.unit_id " + 
-		"FROM `transactions` t, projects p " + 
-		"WHERE t.project_id = p.id and p.user_id = " + userId + " group by p.id";
+		//String Query = "SELECT  sum( IF(t.transaction_type_id=0, t.amount, 0)) as total_income , sum( IF(t.transaction_type_id=1, t.amount, 0)) as total_expense , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id, p.farm_id, p.actual_output, p.expected_output, p.unit_id " + 
+		//"FROM `transactions` t, projects p " + 
+		//"WHERE t.project_id = p.id and p.user_id = " + userId + " group by p.id";
+		
+		
+		String Query = "SELECT sum( IF(t.transaction_type_id=0, t.amount, 0)) as total_income , sum( IF(t.transaction_type_id=1, t.amount, 0)) as total_expense , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id,p.farm_id, p.actual_output, p.expected_output, p.unit_id  "
+				+ "FROM projects p  LEFT JOIN transactions t  "
+				+ "ON t.project_id = p.id "
+				+ "GROUP BY p.id "
+				+ "HAVING p.user_id=" + userId;
 		
 		logger.debug("ProjectDaoImpl->findAllProjectsByUser() >>> Query {} ", Query);
 		
