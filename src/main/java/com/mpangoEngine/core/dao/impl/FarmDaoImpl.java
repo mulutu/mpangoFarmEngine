@@ -78,22 +78,32 @@ public class FarmDaoImpl  extends JdbcDaoSupport implements FarmDao {
 
 	@Override
 	public int save(Farm farm) {
-		String sql = "INSERT INTO farm "
+		
+		logger.debug("FarmDaoImpl->save() >>> Farm {} ", farm);
+		
+		String Query = "INSERT INTO farm "
 				+ "(`id`, `date_created`, `description`, `farm_name`, `location`, `size`, `user_id`) "
 				+ "VALUES (?, ?, ?, ?, ?, ? ,?)";		
-		
-		logger.debug("FarmDaoImpl->save() >>> getId {} ", farm.getId());
-		logger.debug("FarmDaoImpl->save() >>> getDateCreated {} ", farm.getDateCreated());
-		logger.debug("FarmDaoImpl->save() >>> getDescription {} ", farm.getDescription());
-		logger.debug("FarmDaoImpl->save() >>> getFarmName {} ", farm.getFarmName());
-		logger.debug("FarmDaoImpl->save() >>> getLocation {} ", farm.getLocation());
-		logger.debug("FarmDaoImpl->save() >>> getSize {} ", farm.getSize());
-		logger.debug("FarmDaoImpl->save() >>> getUserId {} ", farm.getUserId());
-		
+
 		Object[] params = { farm.getId(), new Date(), farm.getDescription(), farm.getFarmName(), farm.getLocation(), farm.getSize(), farm.getUserId() };
 		int[] types = {   Types.INTEGER,  Types.DATE, Types.VARCHAR,         Types.VARCHAR,      Types.VARCHAR,      Types.INTEGER,  Types.INTEGER };
 
-		return getJdbcTemplate().update( sql, params, types );			
+		return getJdbcTemplate().update( Query, params, types );			
+	}
+	
+	@Override
+	public int updateFarm(Farm farm) {
+		
+		logger.debug("FarmDaoImpl->save() >>> Farm {} ", farm);
+		
+		String Query = " UPDATE farm "
+				+ " SET description=?, farm_name=?, location=?, size=?"
+				+ " WHERE id=?";		
+
+		Object[] params = { farm.getDescription(), farm.getFarmName(), farm.getLocation(), farm.getSize(),       farm.getId() };
+		int[] types = {   Types.VARCHAR,           Types.VARCHAR,      Types.VARCHAR,      Types.INTEGER,      Types.INTEGER };
+
+		return getJdbcTemplate().update( Query, params, types );			
 	}
 
 

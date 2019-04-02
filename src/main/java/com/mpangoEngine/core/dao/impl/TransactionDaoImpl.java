@@ -81,33 +81,38 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
 
 	@Override
 	public int saveTransaction(Transaction transaction) {
-		String sql = "INSERT INTO transactions "
+		
+		logger.debug("TransactionDaoImpl->saveTransaction() >>> Transaction {} ", transaction);
+		
+		String Query = "INSERT INTO transactions "
 				+ "(`id`, `account_id`, `transaction_type_id`,`amount`, `transaction_date`, `description`, `user_id`, `project_id`) "
 				+ "VALUES (?,?,?,?,?,?,?,?)";
-
-		logger.debug("TransactionDaoImpl->saveTransaction() >>> Transaction {} ", transaction);
+		
+		logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);		
 
 		Object[] params = { transaction.getId(), transaction.getAccountId(), transaction.getTransactionTypeId(),
 				transaction.getAmount(), transaction.getTransactionDate(), transaction.getDescription(), transaction.getUserId(), transaction.getProjectId() };
-		int[] types = { Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR,
-				Types.INTEGER, Types.INTEGER };
+		
+		int[] types = { Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER };
 
-		return getJdbcTemplate().update(sql, params, types);
+		return getJdbcTemplate().update(Query, params, types);
 	}
 
 	@Override
 	public int updateTransaction(Transaction transaction) {
+		
+		logger.debug("TransactionDaoImpl->updateTransaction() >>> transaction {} ", transaction);
+		
 		String Query = " UPDATE transactions "
 				+ " SET account_id=?, transaction_type_id=?, amount=?, transaction_date=?, description=?, project_id=? "
-				+ " WHERE id=?";
-
-		logger.debug("TransactionDaoImpl->updateTransaction() >>> transaction {} ", transaction);
+				+ " WHERE id=?";		
 
 		logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);
 
 		Object[] params = { transaction.getAccountId(), transaction.getTransactionTypeId(), transaction.getAmount(),
 				transaction.getTransactionDate(), transaction.getDescription(),
 				 transaction.getProjectId(), transaction.getId() };
+		
 		int[] types = { Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER };
 
 		return getJdbcTemplate().update(Query, params, types);

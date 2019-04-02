@@ -23,4 +23,6 @@ public interface ProjectDao {
 	
 	int save(Project project);
 	
+	int updateProject(Project project);
+	
 }

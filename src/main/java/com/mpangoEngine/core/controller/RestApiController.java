@@ -72,21 +72,23 @@ public class RestApiController {
 	@Autowired
 	private EmailService emailService;
 	@Autowired
-	private TransactionDao transactionDao;
-	
+	private TransactionDao transactionDao;	
 	@Autowired
 	private PrivilegeDao privilegeDao;
-
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-	
+	private BCryptPasswordEncoder bCryptPasswordEncoder;	
 	@Autowired
-	private RoleDao RoleDao;
-	
+	private RoleDao RoleDao;	
 	
 	/*
 	 * TRANSACTIONS
 	 */
+	@RequestMapping(value = "/transactions", method = RequestMethod.POST)
+	public ResponseEntity<?> createTransaction(@RequestBody Transaction transaction) {
+		logger.info("Creating transaction >>>>> ", transaction);
+		int rows = transactionDao.saveTransaction(transaction);
+		return ResponseEntity.ok(response(rows));
+	}
 	@RequestMapping(value = "/transactions", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateTransaction(@RequestBody Transaction transaction ) {
 		logger.info("Updating transaction >>>>> {} ", transaction);
@@ -98,8 +100,7 @@ public class RestApiController {
 		logger.info("List transactions >>>>> ");
 		List<Transaction> projects = transactionDao.findAll();
 		return new ResponseEntity<List<Transaction>>(projects, HttpStatus.OK);
-	}
-	
+	}	
 	@RequestMapping(value = "/transactions/{transactionID}", method = RequestMethod.GET)
 	public ResponseEntity<Transaction> getTransaction(@PathVariable("transactionID") int transactionID) {
 		logger.info("Get transaction >>>>> ", transactionID);
@@ -107,12 +108,7 @@ public class RestApiController {
 		return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/transactions", method = RequestMethod.POST)
-	public ResponseEntity<?> createTransaction(@RequestBody Transaction transaction) {
-		logger.info("Creating transaction >>>>> ", transaction);
-		int rows = transactionDao.saveTransaction(transaction);
-		return ResponseEntity.ok(response(rows));
-	}
+	
 
 	/*
 	 * FARMS 
@@ -123,7 +119,12 @@ public class RestApiController {
 		int rows = farmDao.save(farm);
 		return ResponseEntity.ok(response(rows));
 	}
-	
+	@RequestMapping(value = "/farms", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateFarm(@RequestBody Farm farm) {
+		logger.info("Updating farm >>>> ", farm);
+		int rows = farmDao.updateFarm(farm);
+		return ResponseEntity.ok(response(rows));
+	}	
 	@RequestMapping(value = "/farms/{farmid}", method = RequestMethod.GET)
 	public ResponseEntity<Farm> getFarm(@PathVariable("farmid") int farmid) {
 		Farm farm = farmDao.findFarmById(farmid);
@@ -133,6 +134,18 @@ public class RestApiController {
 	/*
 	 * PROJECTS
 	 */
+	@RequestMapping(value = "/projects", method = RequestMethod.POST)
+	public ResponseEntity<?> createProject(@RequestBody Project project) {
+		logger.info("Creating Project >>>>> ", project);
+		int rows = projectDao.save(project);
+		return ResponseEntity.ok(response(rows));
+	}
+	@RequestMapping(value = "/projects", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateProject(@RequestBody Project project ) {
+		logger.info("Updating project >>>>> {} ", project);
+		int rows = projectDao.updateProject(project);
+		return ResponseEntity.ok(response(rows));
+	}
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
 	public ResponseEntity<List<Project>> listAllProjects() {
 		List<Project> projects = projectDao.findAll();
@@ -143,14 +156,8 @@ public class RestApiController {
 	public ResponseEntity<Project> getProject(@PathVariable("projid") int projid) {
 		Project project = projectDao.findProjectById(projid);
 		return new ResponseEntity<Project>(project, HttpStatus.OK);
-	}
+	}	
 	
-	@RequestMapping(value = "/projects", method = RequestMethod.POST)
-	public ResponseEntity<?> createProject(@RequestBody Project project) {
-		logger.info("Creating Project >>>>> ", project);
-		int rows = projectDao.save(project);
-		return ResponseEntity.ok(response(rows));
-	}
 	
 
 	/*
@@ -194,7 +201,7 @@ public class RestApiController {
 	public ResponseEntity<List<Farm>> listAllFarmsByUser(@PathVariable("userid") int userid) {
 		List<Farm> farms = farmDao.findAllFarmsByUserId(userid);
 		if (farms.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT); // You many decide to return HttpStatus.NOT_FOUND
+			return new ResponseEntity(HttpStatus.NOT_FOUND); // You many decide to return HttpStatus.NOT_FOUND
 		}
 		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
 	}

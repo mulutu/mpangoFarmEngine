@@ -13,6 +13,8 @@ public interface FarmDao {
 	
 	int save(Farm farm);
 	
+	int updateFarm(Farm farm);
+	
 	Farm findFarmById(int id);
 	
 	List<Farm> findAllById(int userId);	
