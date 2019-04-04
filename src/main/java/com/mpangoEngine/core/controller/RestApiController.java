@@ -35,6 +35,7 @@ import com.mpangoEngine.core.dao.FarmDao;
 import com.mpangoEngine.core.dao.PrivilegeDao;
 import com.mpangoEngine.core.dao.ProjectDao;
 import com.mpangoEngine.core.dao.RoleDao;
+import com.mpangoEngine.core.dao.TaskDao;
 import com.mpangoEngine.core.dao.TransactionDao;
 import com.mpangoEngine.core.dao.UserDao;
 import com.mpangoEngine.core.model.Account;
@@ -44,6 +45,7 @@ import com.mpangoEngine.core.model.MyUser;
 import com.mpangoEngine.core.model.Privilege;
 import com.mpangoEngine.core.model.Project;
 import com.mpangoEngine.core.model.Role;
+import com.mpangoEngine.core.model.Task;
 import com.mpangoEngine.core.model.Transaction;
 import com.mpangoEngine.core.service.UserService;
 import com.mpangoEngine.core.util.CustomErrorType;
@@ -59,6 +61,8 @@ public class RestApiController {
 	
 	@Autowired
 	private ProjectDao projectDao;
+	@Autowired
+	private TaskDao taskDao;
 	@Autowired
 	private FarmDao farmDao;
 	@Autowired
@@ -106,6 +110,28 @@ public class RestApiController {
 		logger.info("Get transaction >>>>> ", transactionID);
 		Transaction transaction = transactionDao.findTransactionById(transactionID);
 		return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);
+	}
+	
+	
+	/*
+	 * TASKS 
+	 */
+	@RequestMapping(value = "/tasks", method = RequestMethod.POST)
+	public ResponseEntity<?> createTask(@RequestBody Task task) {
+		logger.info("Creating task >>>> ", task);
+		int rows = taskDao.saveTask(task);
+		return ResponseEntity.ok(response(rows));
+	}
+	@RequestMapping(value = "/tasks", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateTask(@RequestBody Task task) {
+		logger.info("Updating task >>>> ", task);
+		int rows = taskDao.updateTask(task);
+		return ResponseEntity.ok(response(rows));
+	}	
+	@RequestMapping(value = "/tasks/{taskid}", method = RequestMethod.GET)
+	public ResponseEntity<Task> getTask(@PathVariable("taskid") int taskid) {
+		Task task = taskDao.getTaskById(taskid);
+		return new ResponseEntity<Task>(task, HttpStatus.OK);
 	}
 	
 	
@@ -157,6 +183,12 @@ public class RestApiController {
 		Project project = projectDao.findProjectById(projid);
 		return new ResponseEntity<Project>(project, HttpStatus.OK);
 	}	
+	
+	@RequestMapping(value = "/projects/{projid}/tasks", method = RequestMethod.GET)
+	public ResponseEntity<List<Task>> getProjectTasks(@PathVariable("projid") int projid) {
+		List<Task> tasks = taskDao.getTasksForProject(projid);
+		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+	}
 	
 	
 

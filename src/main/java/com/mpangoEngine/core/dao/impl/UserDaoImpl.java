@@ -30,6 +30,8 @@ import com.mpangoEngine.core.model.MyUser;
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
 
+
+
 @Component
 @Transactional
 public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
@@ -240,4 +242,6 @@ public class UserDaoImpl extends JdbcDaoSupport implements UserDao {
 		getJdbcTemplate().update(sql3, params, types);
 		getJdbcTemplate().update(sql4, params, types);
 	}
+
+
 }
