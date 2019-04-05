@@ -21,5 +21,7 @@ public interface TaskDao {
 	
 	int updateTask(Task task);
 	
+	int deleteTask(int taskId);
+	
 	List<Task> getTasksForProject(int projectId);
 }

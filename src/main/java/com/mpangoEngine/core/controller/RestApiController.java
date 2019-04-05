@@ -133,6 +133,11 @@ public class RestApiController {
 		Task task = taskDao.getTaskById(taskid);
 		return new ResponseEntity<Task>(task, HttpStatus.OK);
 	}
+	@RequestMapping(value = "/tasks/{taskid}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteTask(@PathVariable("taskid") int taskid) {
+		int rows = taskDao.deleteTask(taskid);
+		return ResponseEntity.ok(response(rows));
+	}
 	
 	
 

@@ -83,6 +83,18 @@ public class TaskDaoImpl extends JdbcDaoSupport implements TaskDao {
 
 		return getJdbcTemplate().update( Query, params, types );
 	}
+	
+	@Override
+	public int deleteTask(int taskId) {
+		logger.debug("TaskDaoImpl->deleteTask() >>> taskId {} ", taskId);
+		
+		String Query = " DELETE FROM tasks WHERE id=?";		
+		
+		Object[] params = { taskId };
+		int[] types = { Types.INTEGER };
+
+		return getJdbcTemplate().update( Query, params, types );
+	}
 
 	@Override
 	public List<Task> getTasksForProject(int projectId) {
