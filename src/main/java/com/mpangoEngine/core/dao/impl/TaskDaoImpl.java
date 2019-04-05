@@ -64,7 +64,7 @@ public class TaskDaoImpl extends JdbcDaoSupport implements TaskDao {
 		
 		logger.debug("TaskDaoImpl->saveTask() >>> task {} ", task);
 		
-		Object[] params = { task.getTaskId(), task.getProjectId(), task.getTaskName(), new Date(), task.getDescription(), task.getPriority(), task.isActive() };
+		Object[] params = { task.getTaskId(), task.getProjectId(), task.getTaskName(), task.getTaskDate(), task.getDescription(), task.getPriority(), task.isActive() };
 		int[] types = {     Types.INTEGER,     Types.INTEGER,      Types.VARCHAR,      Types.DATE, Types.VARCHAR,         Types.INTEGER,      Types.BOOLEAN };
 
 		return getJdbcTemplate().update( Query, params, types );	
