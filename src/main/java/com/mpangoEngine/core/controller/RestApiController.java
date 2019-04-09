@@ -137,8 +137,7 @@ public class RestApiController {
 	public ResponseEntity<?> deleteTask(@PathVariable("taskid") int taskid) {
 		int rows = taskDao.deleteTask(taskid);
 		return ResponseEntity.ok(response(rows));
-	}
-	
+	}	
 	
 
 	/*
