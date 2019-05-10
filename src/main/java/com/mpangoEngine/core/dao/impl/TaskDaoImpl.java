@@ -123,4 +123,31 @@ public class TaskDaoImpl extends JdbcDaoSupport implements TaskDao {
 		}
 		return tasks;
 	}
+
+	@Override
+	public List<Task> getTasksForUser(int userId) {
+		String Query = "SELECT  t.id as task_id, t.project_id, t.task_name, t.task_date, t.description, t.priority, t.active "
+				+ "FROM tasks t, projects p " + "WHERE t.project_id = p.id AND p.user_id=" + userId;
+		
+		logger.debug("TaskDaoImpl->getTasksForUser() >>> Query {} ", Query);
+		
+		List<Task> tasks = new ArrayList<Task>();
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(Query);
+
+		for (Map<String, Object> row : rows) {
+			
+			Task task = new Task();
+			
+			task.setTaskId((int) row.get("task_id"));
+			task.setProjectId((int) row.get("project_id"));
+			task.setTaskName((String) row.get("task_name"));
+			task.setTaskDate((Date) row.get("task_date"));
+			task.setDescription((String) row.get("description"));			
+			task.setPriority((int) row.get("priority"));
+			task.setActive((boolean) row.get("active"));
+
+			tasks.add(task);			
+		}
+		return tasks;
+	}
 }

@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -130,11 +127,13 @@ public class RestApiController {
 	}	
 	@RequestMapping(value = "/tasks/{taskid}", method = RequestMethod.GET)
 	public ResponseEntity<Task> getTask(@PathVariable("taskid") int taskid) {
+		logger.info("Get task >>>> ", taskid);
 		Task task = taskDao.getTaskById(taskid);
 		return new ResponseEntity<Task>(task, HttpStatus.OK);
 	}
 	@RequestMapping(value = "/tasks/{taskid}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteTask(@PathVariable("taskid") int taskid) {
+		logger.info("Delete task >>>> ", taskid);
 		int rows = taskDao.deleteTask(taskid);
 		return ResponseEntity.ok(response(rows));
 	}	
@@ -236,10 +235,14 @@ public class RestApiController {
 	@RequestMapping(value = "/users/{userid}/farms", method = RequestMethod.GET)
 	public ResponseEntity<List<Farm>> listAllFarmsByUser(@PathVariable("userid") int userid) {
 		List<Farm> farms = farmDao.findAllFarmsByUserId(userid);
-		if (farms.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NOT_FOUND); // You many decide to return HttpStatus.NOT_FOUND
-		}
+		if (farms.isEmpty()) return new ResponseEntity(HttpStatus.NOT_FOUND);		
 		return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/tasks", method = RequestMethod.GET)
+	public ResponseEntity<List<Task>> getTasksByUser(@PathVariable("userId") int userId) {
+		List<Task> tasks = taskDao.getTasksForUser(userId);
+		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/users/{userId}/accounts", method = RequestMethod.GET)
