@@ -191,8 +191,7 @@ public class RestApiController {
 	public ResponseEntity<List<Task>> getProjectTasks(@PathVariable("projid") int projid) {
 		List<Task> tasks = taskDao.getTasksForProject(projid);
 		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
-	}
-	
+	}	
 	
 
 	/*
@@ -290,7 +289,6 @@ public class RestApiController {
 				return o2.getTransactionDate().compareTo(o1.getTransactionDate());
 			}
 		});
-
 		return new ResponseEntity<List<Transaction>>(transactionsArray, HttpStatus.OK);
 	}
 	
@@ -320,7 +318,6 @@ public class RestApiController {
 			role = authority.getAuthority();
 		}		
 		myUser.setUserType(role);
-
 		return ResponseEntity.ok(myUser);
 	}
 	
@@ -330,8 +327,7 @@ public class RestApiController {
 
 		//userValidator.validate(user);
 	
-		user.setConfirmationToken(UUID.randomUUID().toString());		
-		
+		user.setConfirmationToken(UUID.randomUUID().toString());
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setEnabled(true);
 
