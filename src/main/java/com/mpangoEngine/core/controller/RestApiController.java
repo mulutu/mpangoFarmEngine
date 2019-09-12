@@ -101,7 +101,13 @@ public class RestApiController {
 		logger.info("List transactions >>>>> ");
 		List<Transaction> projects = transactionDao.findAll();
 		return new ResponseEntity<List<Transaction>>(projects, HttpStatus.OK);
-	}	
+	}
+        @RequestMapping(value = "/transactions/{transactionID}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteTransaction(@PathVariable("transactionID") int transactionID) {
+		logger.info("List transactions >>>>> ");
+		int rows = transactionDao.deleteTransaction(transactionID);
+		return ResponseEntity.ok(response(rows));
+	}
 	@RequestMapping(value = "/transactions/{transactionID}", method = RequestMethod.GET)
 	public ResponseEntity<Transaction> getTransaction(@PathVariable("transactionID") int transactionID) {
 		logger.info("Get transaction >>>>> ", transactionID);

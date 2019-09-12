@@ -81,6 +81,20 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
         }
         return transaction;
     }
+    
+    @Override
+    public int deleteTransaction(int id) {
+
+        String Query = "DELETE FROM transactions WHERE id=?";
+       
+        Object[] params = {id};
+        int[] types = {Types.INTEGER};
+        
+        logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);
+
+        return getJdbcTemplate().update(Query, params, types);
+
+    }
 
     @Override
     public int saveTransaction(Transaction transaction) {
@@ -148,6 +162,8 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
     }*/
     @Override
     public int updateTransaction(Transaction transaction) {
+        
+        int response = 1;
 
         logger.debug("TransactionDaoImpl->updateTransaction() >>> transaction {} ", transaction);
 
@@ -155,15 +171,17 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
                 + " SET account_id=?, transaction_type_id=?, amount=?, transaction_date=?, description=?, project_id=? "
                 + " WHERE id=?";
 
-        logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);
-
+        logger.debug("TransactionDaoImpl->updateTransaction() >>> Query {} ", Query);        
+       
         Object[] params = {transaction.getAccountId(), transaction.getTransactionTypeId(), transaction.getAmount(),
-            transaction.getTransactionDate(), transaction.getDescription(),
-            transaction.getProjectId(), transaction.getId()};
+        transaction.getTransactionDate(), transaction.getDescription(),
+        transaction.getProjectId(), transaction.getId()};
 
         int[] types = {Types.INTEGER, Types.INTEGER, Types.DECIMAL, Types.DATE, Types.VARCHAR, Types.INTEGER, Types.INTEGER};
 
-        return getJdbcTemplate().update(Query, params, types);
+        response = getJdbcTemplate().update(Query, params, types);
+                    
+        return response;
     }
 
     @Override
@@ -251,5 +269,7 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
         }
         return transactions;
     }
+
+    
 
 }

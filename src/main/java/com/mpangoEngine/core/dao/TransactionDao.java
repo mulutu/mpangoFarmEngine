@@ -17,6 +17,8 @@ public interface TransactionDao {
 	Transaction findTransactionById(int id);
 
 	int saveTransaction(Transaction transaction);
+        
+        int deleteTransaction(int id);
 
 	int updateTransaction(Transaction transaction);
 
