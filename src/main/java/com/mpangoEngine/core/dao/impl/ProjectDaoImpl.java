@@ -39,8 +39,41 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 
 	@Override
 	public Project findProjectById(int id) {
-		String query = "SELECT * FROM project WHERE id = ?";
-		Project project = (Project) jdbcTemplate.queryForObject(query, new Object[] { id }, new BeanPropertyRowMapper(Project.class));
+		//String query = "SELECT * FROM projects WHERE id = ?";
+                String Query = "SELECT sum( IF(t.transaction_type_id=0, t.amount, 0)) as totalIncomes , sum( IF(t.transaction_type_id=1, t.amount, 0)) as totalExpeses , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id,p.farm_id, p.actual_output, p.expected_output, p.unit_id  "
+				+ "FROM projects p  LEFT JOIN transactions t  "
+				+ "ON t.project_id = p.id "
+                                + "WHERE p.id=" + id + " "
+				+ "GROUP BY p.id ";         
+        
+		//Project project = (Project) jdbcTemplate.queryForObject(Query, new Object[] { id }, new BeanPropertyRowMapper(Project.class));
+		//return project;
+                
+                logger.debug("ProjectDaoImpl->findProjectById() >>> Query {} ", Query);
+		
+		//List<Project> projects = new ArrayList<Project>();
+
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(Query);
+                
+                Project project = new Project();
+		
+		for (Map<String, Object> row : rows) {			
+			project.setId((int) row.get("project_id"));
+			project.setDateCreated((Date) row.get("date_created"));
+			project.setDescription((String) row.get("description"));
+			project.setProjectName((String) row.get("project_name"));
+			project.setUserId((int) row.get("user_id"));
+			project.setFarmId((int) row.get("farm_id"));
+			project.setActualOutput((int) row.get("actual_output"));
+			
+			project.setExpectedOutput((int) row.get("expected_output"));
+			project.setUnitId((int) row.get("unit_id"));
+			
+			project.setTotalExpeses((BigDecimal) row.get("totalExpeses") );
+			project.setTotalIncomes((BigDecimal) row.get("totalIncomes") );			
+			//projects.add(project);
+		}
+		
 		return project;
 	}
 
