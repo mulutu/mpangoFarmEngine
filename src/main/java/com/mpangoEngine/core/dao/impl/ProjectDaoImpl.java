@@ -122,11 +122,11 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 	@Override
 	public List<Project> findAllProjectsSummaryByUser(int userId) {
 	
-		String Query = "SELECT sum( IF(t.transaction_type_id=0, t.amount, 0)) as total_income , sum( IF(t.transaction_type_id=1, t.amount, 0)) as total_expense , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id,p.farm_id, p.actual_output, p.expected_output, p.unit_id  "
+		String Query = "SELECT sum( IF(t.transaction_type_id=0, t.amount, 0)) as totalIncomes , sum( IF(t.transaction_type_id=1, t.amount, 0)) as totalExpeses , p.id as project_id, p.date_created, p.description, p.project_name, p.user_id,p.farm_id, p.actual_output, p.expected_output, p.unit_id  "
 				+ "FROM projects p  LEFT JOIN transactions t  "
 				+ "ON t.project_id = p.id "
-				+ "GROUP BY p.id "
-				+ "HAVING p.user_id=" + userId;
+                                + "WHERE p.user_id=" + userId + " "
+				+ "GROUP BY p.id ";
 		
 		logger.debug("ProjectDaoImpl->findAllProjectsByUser() >>> Query {} ", Query);
 		
@@ -147,8 +147,8 @@ public class ProjectDaoImpl extends JdbcDaoSupport implements ProjectDao {
 			project.setExpectedOutput((int) row.get("expected_output"));
 			project.setUnitId((int) row.get("unit_id"));
 			
-			project.setTotalExpeses((BigDecimal) row.get("total_expense") );
-			project.setTotalIncomes((BigDecimal) row.get("total_income") );
+			project.setTotalExpeses((BigDecimal) row.get("totalExpeses") );
+			project.setTotalIncomes((BigDecimal) row.get("totalIncomes") );
 			
 			projects.add(project);
 		}
