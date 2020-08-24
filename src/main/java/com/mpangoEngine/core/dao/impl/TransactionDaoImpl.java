@@ -109,11 +109,13 @@ public class TransactionDaoImpl extends JdbcDaoSupport implements TransactionDao
                 + "VALUES (?,?,?,?,?,?,?,?)";
 
         List<Integer> selectedProjectIds = transaction.getSelectedProjectIds();
-        int numberOftransactions = selectedProjectIds.size();
-
         BigDecimal amtFull = transaction.getAmount();
+        
+        if(selectedProjectIds.size() < 1 ){
+            selectedProjectIds.add(transaction.getProjectId());
+        }        
 
-        BigDecimal allocatedAmt = amtFull.divide(new BigDecimal(numberOftransactions));
+        BigDecimal allocatedAmt = amtFull.divide(new BigDecimal(selectedProjectIds.size()));
 
         for (Integer projectId : selectedProjectIds) {
             logger.debug("TransactionDaoImpl->saveTransaction() >>> Transaction Selected Project ID: {} ", projectId);
